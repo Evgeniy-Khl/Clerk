@@ -233,7 +233,7 @@ while (1){
       //-- перевіримо чи настав інший день --------------
       if (((sTime.Hours+sTime.Minutes+sTime.Seconds)<=4)){
         writeDateToBackup(RTC_BKP_DR1);             // сохраним обновленную дату
-        sprintf(fileName,"20%02u_%02u_%02u.txt",sDate.Year,sDate.Month,sDate.Date);
+        sprintf(fileName,"%02u_%02u_%02u.txt",sDate.Year,sDate.Month,sDate.Date);
       }
       //-------------------------------------------------
       temperature_check();                          // измерение температуры
