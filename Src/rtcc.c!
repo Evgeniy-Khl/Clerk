@@ -1,0 +1,87 @@
+/**
+ *    Time for FatFs filesystem
+ *  
+ *    Depend on PIC32  RTCC running, XC32 compiler and <xc.h>. No other dependencies.
+ * 
+ *  Mysil 2019-Mar-15
+ */
+#include <stdint.h>
+#include <xc.h>
+
+// Union to access rtcc registers
+typedef union tagRTCC
+{    struct
+    {
+  #if __PIC32MX__ || __PIC32MM__ || __PIC32MK__ || __PIC32MZ__
+        uint8_t        dum;                /* Different register layout between PIC24 and PIC32 */
+  #endif
+        uint8_t        sec;
+        uint8_t        min;
+        uint8_t        hr;
+        uint8_t        wkd;
+        uint8_t        day;
+        uint8_t        mth;
+        uint8_t        yr;
+    };
+    struct
+    {
+  #if __PIC32MX__ || __PIC32MM__ || __PIC32MK__ || __PIC32MZ__
+        uint8_t            :8;                /* Different register layout between PIC24 and PIC32 */
+  #endif
+        uint32_t    sec1 : 4;            /* Bitfields to pick out single BCD digits. */
+        uint32_t    sec10 :4;
+        uint32_t     min1  :4;
+        uint32_t    min10 :4;
+        uint32_t    hr1      :4;
+        uint32_t    hr10  :4;
+        uint32_t    wday01:4;
+        uint32_t          :4;
+        uint32_t    day01 :4;
+        uint32_t    day10 :4;
+        uint32_t    mth01 :4;
+        uint32_t    mth10 :4;
+        uint32_t    year01:4;
+        uint32_t    year10:4;
+    };
+    struct
+    {    uint16_t    prt00;
+        uint16_t    prt01;
+        uint16_t    prt10;
+        uint16_t    prt11;
+    };
+    struct
+    {    uint32_t    time;
+        uint32_t    date;
+    };
+} RTCC_t;
+
+
+uint32_t get_fattime(void)
+{
+// Get time and date
+    RTCC_t        rtcc;
+    uint32_t    fattime;
+#ifdef  __XC32__
+    do
+    {    rtcc.date = RTCDATE;
+        rtcc.time = RTCTIME;
+    }    while (rtcc.date != RTCDATE);    /* In case thee Date increment while reading time. */
+#elif  __XC16__
+    do
+    {    RCFGCALbits.RTCPTR = 0;
+        rtcc.prt00 = RTCVAL;            // Get seconds and minutes first
+        RCFGCALbits.RTCPTR = 3;            // Point to Years register
+        rtcc.prt11 = RTCVAL;            // Get Year
+        rtcc.prt10 = RTCVAL;
+        rtcc.prt01 = RTCVAL;
+    } while (rtcc.prt00 != RTCVAL);        // Test, if seconds have changed, try again
+#endif
+    fattime = (rtcc.year10 * 10 + rtcc.year01 + 20) << 25  
+            | (rtcc.mth10  * 10 + rtcc.mth01) << 21 
+            | (rtcc.day10  * 10 + rtcc.day01) << 16
+            | (rtcc.hr10   * 10 + rtcc.hr1) << 11
+            | (rtcc.min10  * 10 + rtcc.min1) << 5
+            | (rtcc.sec10  * 10 + rtcc.sec1) >> 1;
+        
+    return fattime;
+}   
