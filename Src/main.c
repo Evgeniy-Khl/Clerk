@@ -1,5 +1,6 @@
 /* USER CODE BEGIN Header */
 /**
+STM32F103C8Tx LQFP48	Flash:64 kBytes	RAM:20 kBytes
   ******************************************************************************
   * @file           : main.c
   * @brief          : Main program body
@@ -94,6 +95,7 @@ static void MX_RTC_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+//-------- Обратный вызов с истекшим периодом --------------
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   if(htim->Instance == TIM1) //check if the interrupt comes from TIM1 (10 ms)
   {
@@ -228,16 +230,17 @@ while (1){
         checkButt = 0;
       }
  // show, secTick change in function handles RTC global interrupt -> {void RTC_IRQHandler(void)} in stm32f1xx_it.c 
-    if (show){
-      show = 0;
-      //-- перевіримо чи настав інший день --------------
-      if (((sTime.Hours+sTime.Minutes+sTime.Seconds)<=4)){
-        writeDateToBackup(RTC_BKP_DR1);             // сохраним обновленную дату
-        sprintf(fileName,"%02u_%02u_%02u.txt",sDate.Year,sDate.Month,sDate.Date);
+      if (show){
+        show = 0;
+        //-- перевіримо чи настав інший день --------------
+        if (((sTime.Hours+sTime.Minutes+sTime.Seconds)<=4)){
+          writeDateToBackup(RTC_BKP_DR1);             // сохраним обновленную дату
+          sprintf(fileName,"%02u_%02u_%02u.txt",sDate.Year,sDate.Month,sDate.Date);
+        }
+        //-------------------------------------------------
+        temperature_check();                          // измерение температуры
+        display();                                    // отображение на экране
       }
-      //-------------------------------------------------
-      temperature_check();                          // измерение температуры
-      display();}                                   // отображение на экране
       if (card){                                    // запись на SD
         if (secTick>=set[2]){secTick = 0; SD_write (fileName);}
       }
