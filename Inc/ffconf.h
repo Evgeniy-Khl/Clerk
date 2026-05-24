@@ -20,11 +20,11 @@
 #ifndef _FFCONF
 #define _FFCONF 32020	/* Revision ID */
 
+#define _VOLUMES    1
+
 /*-----------------------------------------------------------------------------/
 / Additional user header to be used  
 /-----------------------------------------------------------------------------*/
-#include "main.h"
-#include "stm32f1xx_hal.h"
 
 /*-----------------------------------------------------------------------------/
 / Functions and Buffer Configurations

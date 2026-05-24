@@ -17,6 +17,7 @@
   */
 
 #include "fatfs.h"
+#include "rtc.h"
 
 uint8_t retUSER;    /* Return value for USER */
 char USERPath[4];   /* USER logical drive path */

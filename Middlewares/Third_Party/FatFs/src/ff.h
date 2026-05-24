@@ -25,6 +25,13 @@ extern "C" {
 
 #include "integer.h"	/* Basic integer types */
 #include "ffconf.h"		/* FatFs configuration options */
+
+#ifndef _INC_TCHAR
+typedef char TCHAR;
+#define _T(x) x
+#define _TEXT(x) x
+#endif
+
 #if _FATFS != _FFCONF
 #error Wrong configuration file (ffconf.h).
 #endif

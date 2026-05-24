@@ -1,7 +1,7 @@
 #ifndef SD_H_
 #define SD_H_
 //--------------------------------------------------
-#include "main.h"
+#include "stm32f1xx_hal.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -21,7 +21,7 @@
 #define CT_BLOCK 0x08 /* Block addressing */
 //--------------------------------------------------
 typedef struct sd_info {
-  volatile uint8_t type;//тип карты
+  volatile uint8_t type;//пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 } sd_info_ptr;
 //--------------------------------------------------
 void SD_PowerOn(void);
