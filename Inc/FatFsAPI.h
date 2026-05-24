@@ -14,6 +14,7 @@
 
 uint8_t My_LinkDriver(void);
 DRESULT SD_write (const TCHAR* flname);
+void SD_close(void);
 DRESULT SD_dir (void);
 
 #endif // __FATFSAPI_H__

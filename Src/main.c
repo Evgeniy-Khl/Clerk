@@ -66,16 +66,18 @@ RTC_DateTypeDef sDate;
 char fileName[15]={0};
 char txt[10];
 char buffTFT[LEN_BUFF];
-const char* dateName[5]={"год","месяц","день","час","минут"};
-const char* setName[MAX_SET]={"Max T","Min T","Период","Режим"};
+const char* dateName[5]={"year","month","day","hour","minute"};
+const char* setName[MAX_SET]={"Max T","Min T","Period","Mode"};
 int16_t set[MAX_SET]={250,240,10,0}, newval[MAX_SET]={0};
-uint8_t displ_num=0, newButt=1, ticTimer, ticTouch, show, Y_txt=5, X_left=5, Y_top, Y_bottom=ILI9341_HEIGHT-22, buttonAmount, secTick, card=0;
+volatile uint8_t displ_num=0, newButt=1, ticTimer, ticTouch, show, Y_txt=5, X_left=5, Y_top, Y_bottom=ILI9341_HEIGHT-22, buttonAmount, secTick, card=0;
 uint8_t familycode[MAX_DEVICE][8]={0};
-int8_t ds18b20_amount, numSet=0, numDate=0, newDate=0, resetDispl=0;
+int8_t ds18b20_amount, numSet=0, numDate=0, newDate=0;
+volatile int8_t resetDispl=0;
 int16_t ds18b20_val[MAX_DEVICE]={199}, max_t, min_t, midl_t, val_t, pvT, pvRH;
 uint16_t touch_x, touch_y;
 uint16_t fillScreen = ILI9341_BLACK;
-uint32_t checkButt, UnixTime;
+volatile uint32_t checkButt;
+uint32_t UnixTime;
 struct ram_structure {int x,y; char w,h;} buttons[4];
 
 extern FATFS SDFatFs;
@@ -95,15 +97,15 @@ static void MX_RTC_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-//-------- Обратный вызов с истекшим периодом --------------
+//-------- Period elapsed callback --------------
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   if(htim->Instance == TIM1) //check if the interrupt comes from TIM1 (10 ms)
   {
     checkButt++;
-    if (ticTouch){ --ticTouch; HAL_GPIO_WritePin(Touch_GPIO_Port, Touch_Pin, GPIO_PIN_SET);}// индикация нажатия
+    if (ticTouch){ --ticTouch; HAL_GPIO_WritePin(Touch_GPIO_Port, Touch_Pin, GPIO_PIN_SET);}// touch indication
     else {HAL_GPIO_WritePin(Touch_GPIO_Port, Touch_Pin, GPIO_PIN_RESET);}
     if (ticTimer){ --ticTimer;
-      if (set[3]&1) HAL_GPIO_WritePin(Alarm_GPIO_Port, Alarm_Pin, GPIO_PIN_SET); // включить тревогу
+      if (set[3]&1) HAL_GPIO_WritePin(Alarm_GPIO_Port, Alarm_Pin, GPIO_PIN_SET); // turn on alarm
     }
     else HAL_GPIO_WritePin(Alarm_GPIO_Port, Alarm_Pin, GPIO_PIN_RESET);
   }
@@ -144,7 +146,7 @@ int main(void)
   MX_FATFS_Init();
   MX_RTC_Init();
   /* USER CODE BEGIN 2 */
-//----------- Локальные переменные -----------
+//----------- Local variables -----------
   uint8_t item;
 //  struct gmc systime;
 //--------------------------------------------
@@ -152,26 +154,26 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim1);
   TFT_init();
   ds18b20_port_init();
-  item = ds18b20_count(MAX_DEVICE);   // проверяем наличие датчиков если item = 0 датчики найдены
+  item = ds18b20_count(MAX_DEVICE);   // check for sensors presence; if item == 0, sensors are found
   //ds18b20_amount = 21;
   //*******************************************************************************************************************************************************************************  
-  HAL_RTC_WaitForSynchro(&hrtc);                      // Після увімкнення, пробудження, скидання, потрібно викликати цю функцію  
-  if (HAL_RTCEx_BKUPRead(&hrtc,RTC_BKP_DR1) == 0){    // Перевіряємо чи дата вже була збережена чи ні
-   // як ні, то задамо якусь початкову дату і час
-    setDataAndTime(0x22,RTC_MONTH_SEPTEMBER,0x01,RTC_WEEKDAY_THURSDAY,0x00,0x00,0x00,RTC_FORMAT_BCD);//2022,MONTH_SEPTEMBER,01  WEEKDAY_THURSDAY  00:00:00
-    writeDateToBackup(RTC_BKP_DR1);       // і запишемо до backup регістрів дату
-    writeSetToBackup(RTC_BKP_DR2);        // запишем значения установок по умолчанию
+  HAL_RTC_WaitForSynchro(&hrtc);                      // This function must be called after power-on, wake-up, or reset  
+  if (HAL_RTCEx_BKUPRead(&hrtc,RTC_BKP_DR1) == 0){    // Check if the date has already been saved or not
+   // if not, set an initial date and time
+   setDataAndTime(0x22,RTC_MONTH_SEPTEMBER,0x01,RTC_WEEKDAY_THURSDAY,0x00,0x00,0x00,RTC_FORMAT_BCD);//2022,MONTH_SEPTEMBER,01  WEEKDAY_THURSDAY  00:00:00
+   writeDateToBackup(RTC_BKP_DR1);       // and write the date to the backup registers
+   writeSetToBackup(RTC_BKP_DR2);        // write default settings values
   }
   else {
-    readSetToBackup(RTC_BKP_DR2);         // считаем значения установок хранящихся в памяти
-    readBackupToDate(RTC_BKP_DR1);        // выполним коррекцию даты
-    writeDateToBackup(RTC_BKP_DR1);       // сохраним обновленную дату
+    readSetToBackup(RTC_BKP_DR2);         // read settings values stored in memory
+    readBackupToDate(RTC_BKP_DR1);        // perform date correction
+    writeDateToBackup(RTC_BKP_DR1);       // save the updated date
   }
   //*******************************************************************************************************************************************************************************
 
   HAL_RTCEx_SetSecond_IT(&hrtc);
   
-  sprintf(buffTFT,"Количество датчиков: %d шт.",ds18b20_amount);
+  sprintf(buffTFT,"Sensors amount: %d pcs.",ds18b20_amount);
   ILI9341_WriteString(5, Y_txt, buffTFT, Font_11x18, ILI9341_CYAN, ILI9341_BLACK);
   Y_txt = Y_txt+18+5;
   
@@ -180,16 +182,16 @@ int main(void)
   sprintf(buffTFT,"%02u:%02u:%02u    %02u.%02u.20%02u",sTime.Hours, sTime.Minutes, sTime.Seconds,sDate.Date,sDate.Month,sDate.Year);
   ILI9341_WriteString(X_left+20, Y_txt, buffTFT, Font_11x18, ILI9341_YELLOW, fillScreen);
   Y_txt = Y_txt+18+5;
-  //------ формирование имени файла ---------------------------------------
+  //------ generating file name ---------------------------------------
   sprintf(fileName,"%02u_%02u_%02u.txt",sDate.Year,sDate.Month,sDate.Date);
 //  ILI9341_WriteString(X_left, Y_txt, fileName, Font_11x18, ILI9341_WHITE, fillScreen);
 //  Y_txt = Y_txt+18+5;
-  //------- персчет в UnixTime --------------------------------------------
+  //------- conversion to UnixTime --------------------------------------------
   UnixTime = colodarToCounter();
 //  sprintf(buffTFT,"UnixTime: %u", UnixTime);
 //  ILI9341_WriteString(X_left+20, Y_txt, buffTFT, Font_11x18, ILI9341_YELLOW, fillScreen);
 //  Y_txt = Y_txt+18+5;
-  //------- Учстановки ----------------------------------------------------
+  //------- Settings ----------------------------------------------------
   for (item = 0; item < MAX_SET; item++){
     if (item<2) sprintf(buffTFT,"%10s: %5.1f", setName[item], (float)set[item]/10);
     else sprintf(buffTFT,"%10s: %5i", setName[item], set[item]);
@@ -198,74 +200,81 @@ int main(void)
   }
   //-----------------------------------------------------------------------
   if (ds18b20_amount){
-    ds18b20_Convert_T();        // первое измерение температуры
+    ds18b20_Convert_T();        // first temperature measurement
     HAL_Delay(1000);
-    card = My_LinkDriver();     // инициализация SD карты
+    card = My_LinkDriver();     // SD card initialization
   }
   HAL_Delay(5000);
   ILI9341_FillScreen(fillScreen);
   Y_txt = 5; X_left = 5;
   /* USER CODE END 2 */
 
-  /* Infinite loop */
+/* Infinite loop */
   /* USER CODE BEGIN WHILE */
-while (1){
-    if (ds18b20_amount){
-      Y_txt = 5; X_left = 5;
- //     Y_top = Y_txt;
-    //----- тачскрин ---------------------------
-      if (ILI9341_TouchPressed()&& checkButt>40){
-        ticTouch = 5;
-//        ILI9341_WriteString(X_left, Y_bottom - 44, "TouchPressed!", Font_11x18, ILI9341_MAGENTA, fillScreen);
-//        HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);  // LED_PC13=Toggle
-        if(ILI9341_TouchGetCoordinates(&touch_x, &touch_y)){
-          for (item=0; item<buttonAmount; item++){
-            if(contains(touch_x, touch_y, item)) break; // проверка попадания новой координаты в область кнопки
-          }
-          checkButtons(item);                           // проверка нажатой кнопки
-          if (displ_num) resetDispl=60;
-          else resetDispl = 0;
-          display();
+  uint8_t last_date = sDate.Date;
+  
+  while (1){
+    //----- Touchscreen processing (always fast) ---------------------------
+    if (ILI9341_TouchPressed() && checkButt > 40){
+      ticTouch = 5;
+      if(ILI9341_TouchGetCoordinates(&touch_x, &touch_y)){
+        for (item=0; item<buttonAmount; item++){
+          if(contains(touch_x, touch_y, item)) break; 
         }
-        checkButt = 0;
+        checkButtons(item); 
+        if (displ_num) resetDispl = 60;
+        else resetDispl = 0;
+        display();
       }
- // show, secTick change in function handles RTC global interrupt -> {void RTC_IRQHandler(void)} in stm32f1xx_it.c 
-      if (show){
-        show = 0;
-        //-- перевіримо чи настав інший день --------------
-        if (((sTime.Hours+sTime.Minutes+sTime.Seconds)<=4)){
-          writeDateToBackup(RTC_BKP_DR1);             // сохраним обновленную дату
-          sprintf(fileName,"%02u_%02u_%02u.txt",sDate.Year,sDate.Month,sDate.Date);
-        }
-        //-------------------------------------------------
-        temperature_check();                          // измерение температуры
-        display();                                    // отображение на экране
-      }
-      if (card){                                    // запись на SD
-        if (secTick>=set[2]){secTick = 0; SD_write (fileName);}
-      }
-      else if (secTick>=set[2]){
-        secTick = 0;
-        card = My_LinkDriver();
-        newButt = card;
-      }
+      checkButt = 0;
     }
-    else {
+
+    //----- Periodic tasks (triggered by RTC interrupt) ---------------------
+    if (show){
+      show = 0;
+      HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+      HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
+
+      // Check if a new day has arrived to change the log file
+      if (sDate.Date != last_date){
+        last_date = sDate.Date;
+        writeDateToBackup(RTC_BKP_DR1);
+        SD_close(); // Close old file
+        sprintf(fileName, "%02u_%02u_%02u.txt", sDate.Year, sDate.Month, sDate.Date);
+        card = My_LinkDriver(); // Open new file
+      }
+
+      temperature_check();
+      display();
+    }
+
+    //----- Data Logging logic ----------------------------------------------
+    if (ds18b20_amount > 0) {
+      if (secTick >= set[2]){ // Logging period reached
+        secTick = 0;
+        if (card){
+          SD_write(fileName); // Appends and syncs
+        } else {
+          card = My_LinkDriver(); // Try to reconnect
+          if (card) SD_write(fileName);
+          newButt = card;
+        }
+      }
+    } else {
+      // Fallback to DHT or sensor search if no DS18B20 found
       item = readDHT();
       if (item){
-        ILI9341_WriteString(45, 5, "Подключен DHT-21!", Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
-        sprintf(buffTFT,"t=%.1f  RH=%.1f  ",(float)pvT/10,(float)pvRH/10);
+        ILI9341_WriteString(45, 5, "DHT-21 Connected!", Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
+        sprintf(buffTFT, "t=%.1f  RH=%.1f  ", (float)pvT/10, (float)pvRH/10);
         ILI9341_WriteString(15, Y_txt+18+15, buffTFT, Font_16x26, ILI9341_WHITE, ILI9341_BLACK);
         HAL_Delay(1000);
-      }
-      else {
-        ILI9341_WriteString(45, 100, "Датчики ненайдены!", Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
-        item = ds18b20_count(MAX_DEVICE);   // проверяем наличие датчиков если item = 0 датчики найдены
+      } else {
+        ILI9341_WriteString(45, 100, "Sensors not found!", Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
+        item = ds18b20_count(MAX_DEVICE);
         HAL_Delay(5000);
         ILI9341_FillScreen(fillScreen);
       }
-     }
-
+    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -548,7 +557,7 @@ void Error_Handler(void)
 #ifdef  USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
+  *          where the assert_param error has occurred.
   * @param  file: pointer to the source file name
   * @param  line: assert_param error line source number
   * @retval None
