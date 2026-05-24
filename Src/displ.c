@@ -5,6 +5,7 @@
 #include "FatFsAPI.h"
 #include "rtc.h"
 #include "my.h"
+#include "lang.h"
 
 extern char buffTFT[];
 extern const char* setName[];
@@ -61,7 +62,7 @@ void displT_16x26(){
     if (ds18b20_val[item]<1270) {midl_t = midl_t+ds18b20_val[item]; amnt++;}
     if (ds18b20_val[item]<1000) sprintf(buffTFT,"t%02d=%.1f  ",item+1 ,(float)ds18b20_val[item]/10);
     else if (ds18b20_val[item]<1270) sprintf(buffTFT,"t%02d=%d  ",item+1 , ds18b20_val[item]/10);
-    else sprintf(buffTFT,"t%02d=***  ",item+1);
+    else sprintf(buffTFT,"t%02d=**.*  ",item+1);
     if (ds18b20_val[item]>=set[0]) {color_txt = ILI9341_MAGENTA; ticTimer+=5;}
     else if (ds18b20_val[item]<=set[1]) {color_txt = ILI9341_CYAN; ticTimer+=5;}
     else color_txt = ILI9341_WHITE;
@@ -73,8 +74,13 @@ void displT_16x26(){
     else X_left = X_left + 160;
   }
   X_left=5;
-  sprintf(buffTFT,"MAX=%.1f  MIN=%.1f  MID=%.1f",(float)max_t/10,(float)min_t/10,(float)midl_t/amnt/10);
-  ILI9341_WriteString(X_left, Y_bottom - 22, buffTFT, Font_11x18, ILI9341_YELLOW, ILI9341_BLACK);
+  if(ds18b20_amount && min_t < 1270){
+    sprintf(buffTFT,"MAX=%.1f  MIN=%.1f  MID=%.1f",(float)max_t/10,(float)min_t/10,(float)midl_t/amnt/10);
+    ILI9341_WriteString(X_left, Y_bottom - 22, buffTFT, Font_11x18, ILI9341_YELLOW, ILI9341_BLACK);
+  } 
+  else if(min_t == 1270){
+    ILI9341_WriteString(X_left, Y_bottom - 22, "MAX=**.*  MIN=**.*  MID=**.*", Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
+  }
 }
 //--------- температуры всех датчиков ----------------------
 void displ_0(void){
@@ -83,10 +89,10 @@ void displ_0(void){
     newButt = 0;
     ILI9341_FillRectangle(0, Y_txt, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
     initializeButtons(3,1,25);// 3 колонки; одна строка; высота 25
-    if (card) drawButton(ILI9341_MAGENTA, 0, "Запись");
-    else drawButton(ILI9341_WHITE, 0, "нет SD");
-    drawButton(ILI9341_CYAN, 1, "Время");
-    drawButton(ILI9341_GREEN, 2, "Устан.");
+    if (card) drawButton(ILI9341_MAGENTA, 0, (char*)BUTT01);
+    else drawButton(ILI9341_WHITE, 0, (char*)BUTT00);
+    drawButton(ILI9341_CYAN, 1, (char*)BUTT1);
+    drawButton(ILI9341_GREEN, 2, (char*)BUTT2);
   }
   HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
   HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
@@ -104,7 +110,7 @@ void displ_1(void){
     newButt = 0;
     ILI9341_FillRectangle(0, Y_txt, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
     initializeButtons(2,1,25);// две колонки; одна строка; высота 25
-    drawButton(ILI9341_BLUE, 0, "Выход");
+    drawButton(ILI9341_BLUE, 0, (char*)BUTT3);
     drawButton(ILI9341_BLACK, 1, "");
   }
   SD_dir();
@@ -120,10 +126,10 @@ void displ_2(void){
     newButt = 0;
     ILI9341_FillRectangle(0, Y_txt, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
     initializeButtons(4,1,45);// четыре колонки; одна строка; высота 45
-    drawButton(ILI9341_BLUE, 0, "Выход");
+    drawButton(ILI9341_BLUE, 0, (char*)BUTT3);
     drawButton(ILI9341_GREEN, 1, "<");
     drawButton(ILI9341_GREEN, 2, ">");
-    drawButton(ILI9341_MAGENTA, 3, "Кор.");
+    drawButton(ILI9341_MAGENTA, 3, (char*)BUTT4);
   }
   Y_txt = Y_txt+10;
   for (item = 0; item < MAX_SET; item++){
@@ -142,10 +148,10 @@ void displ_3(void){
     newButt = 0;
     ILI9341_FillRectangle(0, Y_txt, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
     initializeButtons(4,1,45);// четыре колонки; одна строка; высота 45
-    drawButton(ILI9341_BLUE, 0, "Отм.");
+    drawButton(ILI9341_BLUE, 0, (char*)BUTT5);
     drawButton(ILI9341_GREEN, 1, "+");
     drawButton(ILI9341_GREEN, 2, "-");
-    drawButton(ILI9341_MAGENTA, 3, "Зап.");
+    drawButton(ILI9341_MAGENTA, 3, (char*)BUTT01);
   }
   Y_txt = Y_txt+45;
   sprintf(buffTFT,"%s:", setName[numSet]);
@@ -165,30 +171,30 @@ void displ_4(void){
     newButt = 0;
     ILI9341_FillRectangle(0, Y_txt, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
     initializeButtons(4,1,45);// четыре колонки; одна строка; высота 45
-    drawButton(ILI9341_BLUE, 0, "Выход");
+    drawButton(ILI9341_BLUE, 0, (char*)BUTT3);
     drawButton(ILI9341_GREEN, 1, "<");
     drawButton(ILI9341_GREEN, 2, ">");
-    drawButton(ILI9341_MAGENTA, 3, "Кор.");
+    drawButton(ILI9341_MAGENTA, 3, (char*)BUTT4);
   }
   Y_txt = Y_txt+10;
   HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
-  sprintf(buffTFT,"  год: 20%02u", sDate.Year);
+  sprintf(buffTFT,"%6s: 20%02u", dateName[0], sDate.Year);
   if (numDate == 0) color_txt = ILI9341_GREEN; else color_txt = ILI9341_WHITE;
   ILI9341_WriteString(X_left+50, Y_txt, buffTFT, Font_11x18, color_txt, ILI9341_BLACK);
   Y_txt = Y_txt+18+5;
-  sprintf(buffTFT,"месяц: %02u", sDate.Month);
+  sprintf(buffTFT,"%6s: %02u", dateName[1], sDate.Month);
   if (numDate == 1) color_txt = ILI9341_GREEN; else color_txt = ILI9341_WHITE;
   ILI9341_WriteString(X_left+50, Y_txt, buffTFT, Font_11x18, color_txt, ILI9341_BLACK);
   Y_txt = Y_txt+18+5;
-  sprintf(buffTFT," день: %02u", sDate.Date);
+  sprintf(buffTFT,"%6s: %02u", dateName[2], sDate.Date);
   if (numDate == 2) color_txt = ILI9341_GREEN; else color_txt = ILI9341_WHITE;
   ILI9341_WriteString(X_left+50, Y_txt, buffTFT, Font_11x18, color_txt, ILI9341_BLACK);
   Y_txt = Y_txt+18+5;
-  sprintf(buffTFT,"  час: %02u", sTime.Hours);
+  sprintf(buffTFT,"%6s: %02u", dateName[3], sTime.Hours);
   if (numDate == 3) color_txt = ILI9341_GREEN; else color_txt = ILI9341_WHITE;
   ILI9341_WriteString(X_left+50, Y_txt, buffTFT, Font_11x18, color_txt, ILI9341_BLACK);
   Y_txt = Y_txt+18+5;
-  sprintf(buffTFT,"минут: %02u", sTime.Minutes);
+  sprintf(buffTFT,"%6s: %02u", dateName[4], sTime.Minutes);
   if (numDate == 4) color_txt = ILI9341_GREEN; else color_txt = ILI9341_WHITE;
   ILI9341_WriteString(X_left+50, Y_txt, buffTFT, Font_11x18, color_txt, ILI9341_BLACK);
   Y_txt = Y_txt+18+5;
@@ -201,17 +207,17 @@ void displ_5(void){
     newButt = 0;
     ILI9341_FillRectangle(0, Y_txt, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
     initializeButtons(4,1,45);// четыре колонки; одна строка; высота 45
-    drawButton(ILI9341_BLUE, 0, "Отм.");
+    drawButton(ILI9341_BLUE, 0, (char*)BUTT5);
     drawButton(ILI9341_GREEN, 1, "+");
     drawButton(ILI9341_GREEN, 2, "-");
-    drawButton(ILI9341_MAGENTA, 3, "Зап.");
+    drawButton(ILI9341_MAGENTA, 3, (char*)BUTT01);
   }
   Y_txt = Y_txt+45;
-  sprintf(buffTFT,"%s:", dateName[numDate]);
+  sprintf(buffTFT,"%6s:", dateName[numDate]);
   ILI9341_WriteString(X_left+20, Y_txt, buffTFT, Font_11x18, ILI9341_WHITE, ILI9341_BLACK);
   Y_txt = Y_txt-8;
   sprintf(buffTFT,"%2u", newDate);
-  ILI9341_WriteString(X_left+90, Y_txt, buffTFT, Font_16x26, ILI9341_WHITE, ILI9341_BLACK);
+  ILI9341_WriteString(X_left+20+11*8, Y_txt, buffTFT, Font_16x26, ILI9341_WHITE, ILI9341_BLACK);
 }
 
 void display(void){

@@ -1,7 +1,6 @@
 #ifndef SD_H_
 #define SD_H_
 //--------------------------------------------------
-#include "stm32f1xx_hal.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>

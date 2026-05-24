@@ -104,6 +104,8 @@ bool ILI9341_TouchGetCoordinates(uint16_t* x, uint16_t* y) {
     // Uncomment this line to calibrate touchscreen:
 //    sprintf(buffTFT,"X=%6d Y=%6d",*x, *y);
 //    ILI9341_WriteString(X_left, Y_bottom - 44, buffTFT, Font_11x18, ILI9341_WHITE, ILI9341_BLACK);    
-
+//------- Красная точка ---------------------
+    ILI9341_DrawPixel(*x, *y, ILI9341_RED);
+//--------------------------------------------
     return true;
 }

@@ -1,5 +1,6 @@
 #include "FatFsAPI.h"
 #include "my.h"
+#include "lang.h"
 #include <stdio.h>
 #include "ili9341.h"
 #include "fonts.h"
@@ -38,11 +39,7 @@ uint8_t My_LinkDriver(void){
   if (FATFS_LinkDriver(&USER_Driver, USERPath) != 0) return 0;
 
   // Mount the drive
-  if(f_mount(&SDFatFs, (const char*)USERPath, 1) != FR_OK) {
-    ILI9341_WriteString(X_left, Y_bottom - 22, "SD Mount Failed!", Font_7x10, ILI9341_MAGENTA, fillScreen);
-    HAL_Delay(2000);
-    return 0;
-  }
+  if(f_mount(&SDFatFs, (const char*)USERPath, 1) != FR_OK) return 0;
 
   // Open existing or create new file
   fr = f_open(&MyFile, fileName, FA_OPEN_ALWAYS | FA_WRITE);
@@ -61,15 +58,15 @@ uint8_t My_LinkDriver(void){
       
       f_write(&MyFile, buffTFT, strlen(buffTFT), (void*)&bwrt);
       f_sync(&MyFile);
-      ILI9341_WriteString(X_left, Y_bottom - 22, "New Log Created!", Font_11x18, ILI9341_GREEN, fillScreen);
+      ILI9341_WriteString(X_left, Y_bottom - 22, (char*)STR_NEW_LOG, Font_11x18, ILI9341_GREEN, fillScreen);
     } else {
       // Seek to end for appending
       f_lseek(&MyFile, f_size(&MyFile));
-      ILI9341_WriteString(X_left, Y_bottom - 22, "Log Appending...", Font_11x18, ILI9341_GREEN, fillScreen);
+      ILI9341_WriteString(X_left, Y_bottom - 22, (char*)STR_LOG_APPEND, Font_11x18, ILI9341_GREEN, fillScreen);
     }
     cardOk = 1;
   } else {
-    ILI9341_WriteString(X_left, Y_bottom - 22, "File Open Error!", Font_11x18, ILI9341_YELLOW, ILI9341_RED);
+    ILI9341_WriteString(X_left, Y_bottom - 22, (char*)STR_FILE_ERROR, Font_11x18, ILI9341_YELLOW, ILI9341_RED);
     f_mount(NULL, (const TCHAR*)USERPath, 0);
   }
 
@@ -99,11 +96,11 @@ DRESULT SD_write (const char* flname){
   if (res == FR_OK && bwrt > 0) {
     f_sync(&MyFile); // Flush data to physical media
     if (displ_num == 0) {
-        ILI9341_WriteString(X_left, Y_bottom - 22, " DATA SAVED ", Font_11x18, ILI9341_BLACK, ILI9341_GREEN);
+        ILI9341_WriteString(X_left, Y_bottom - 22, (char*)STR_SAVE_DATA, Font_11x18, ILI9341_BLACK, ILI9341_GREEN);
     }
     return RES_OK;
   } else {
-    ILI9341_WriteString(X_left, Y_bottom - 22, "WRITE ERROR!", Font_11x18, ILI9341_YELLOW, ILI9341_RED);
+    ILI9341_WriteString(X_left, Y_bottom - 22, (char*)STR_WRT_ERROR, Font_11x18, ILI9341_YELLOW, ILI9341_RED);
     card = 0; // Mark card as invalid
     return RES_ERROR;
   }

@@ -1,8 +1,8 @@
+#include "my.h"
+#include "lang.h"
+#include "rtc.h"
 #include "tft_proc.h"
 #include "ili9341_touch.h"
-#include "rtc.h"
-#include "my.h"
-#include <stdio.h>
 
 extern int16_t set[MAX_SET], newval[MAX_SET];
 extern uint8_t displ_num, newButt, ticTimer, ticTouch, show, Y_txt, X_left, Y_top, Y_bottom, buttonAmount, secTick, card;
@@ -20,13 +20,13 @@ void TFT_init(){
   ILI9341_Init();
   ILI9341_FillScreen(fillScreen);
   Y_txt = 5; X_left = 5;
-  ILI9341_WriteString(45, Y_txt, "����� v 0.1", Font_11x18, ILI9341_YELLOW, fillScreen);
+  ILI9341_WriteString(45, Y_txt, (char*)STR_VERSION, Font_11x18, ILI9341_YELLOW, fillScreen);
   Y_txt = Y_txt+18+5;
-//  ILI9341_WriteString(25, Y_txt, "������ �������������", Font_11x18, ILI9341_GREEN, fillScreen);
+//  ILI9341_WriteString(25, Y_txt, "correction device", Font_11x18, ILI9341_GREEN, fillScreen);
 //  Y_txt = Y_txt+18+5;
-//  ILI9341_WriteString(25, Y_txt, "�������� ���������", Font_11x18, ILI9341_GREEN, fillScreen);
+//  ILI9341_WriteString(25, Y_txt, "measurement accuracy", Font_11x18, ILI9341_GREEN, fillScreen);
 //  Y_txt = Y_txt+18+5;
-//  ILI9341_WriteString(25, Y_txt, "�������� �����������.", Font_11x18, ILI9341_GREEN, fillScreen);
+//  ILI9341_WriteString(25, Y_txt, "temperature sensors.", Font_11x18, ILI9341_GREEN, fillScreen);
 //  HAL_Delay(5000);
 }
 
@@ -50,11 +50,11 @@ void WindowDraw(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t setcolo
   ILI9341_WriteString(x+(w-11)/2, y+(h-18)/2, str, Font_11x18, strColor, setcolor);
 }
 
-void initializeButtons(uint8_t col, uint8_t row, uint8_t h)// ������ ������
+void initializeButtons(uint8_t col, uint8_t row, uint8_t h)// button height
 {
   uint8_t i,j,indx;
   uint16_t x, y, w;
-  switch (col)                  // ������ ������ ������� �� ���-�� ������ � ������
+  switch (col)                  // button width depends on the number of buttons in a row
    {
     case 4: w = 72; break;
     case 3: w = 100; break;
@@ -62,32 +62,32 @@ void initializeButtons(uint8_t col, uint8_t row, uint8_t h)// ������
     default: w = ILI9341_WIDTH-6;
    };
   if(h<20) h=20;
-  y = ILI9341_HEIGHT - h - 4;      // ������� ������ ������
+  y = ILI9341_HEIGHT - h - 4;      // top outline of the button
   indx = 0;
   for (j=0; j<row; j++)
    {
-    x = 4;// ������ 1 ������
+    x = 4;// start of the 1st button
     for (i=0; i<col; i++)
       {
-        buttons[indx].x = x+i*(w+8);// �������� ����� �������� �� �����������
+        buttons[indx].x = x+i*(w+8);// horizontal interval between buttons
         buttons[indx].w = w;
         buttons[indx].h = h;
         buttons[indx].y = y;
         indx++;
       }
-    y -= (h*(row-1)+4);// �������� ����� �������� �� ���������
+    y -= (h*(row-1)+4);// vertical interval between buttons
    }
-  Y_bottom = y;// ������ ������� �� ������� ����� ����������� �����
-  buttonAmount = col * row;// ����� ���������� ������
+  Y_bottom = y;// bottom boundary up to which the screen can be filled
+  buttonAmount = col * row;// total amount of buttons
 }
-//-------------------- ���� ���� --- ���� ����� -- ���� ������ --- ����� --- ����� ---------
+//-------------------- background color --- border color -- text color --- number --- text ---------
 void drawButton(uint16_t setcolor, uint8_t b, char *str)
 {
   uint16_t x, y, w, h;
-  w = buttons[b].w;      // ������ ������
-  h = buttons[b].h;      // ������ ������
-  x = buttons[b].x;      // ������ ������� ������
-  y = buttons[b].y;      // ������ ������� ������
+  w = buttons[b].w;      // button width
+  h = buttons[b].h;      // button height
+  x = buttons[b].x;      // start of the button outline
+  y = buttons[b].y;      // start of the button outline
 
   ILI9341_FillRectangle(x, y, w, h, setcolor);
 
@@ -109,15 +109,15 @@ void drawButton(uint16_t setcolor, uint8_t b, char *str)
      ILI9341_DrawPixel(x+w+1, i, bordColor);
   }
 
-  x = x + w/2 - strlen(str)*11/2;  // ������ ������� 11
-  y = y + h/2 - 9;                 // ������ ������� 18 / 2
+  x = x + w/2 - strlen(str)*11/2;  // character width is 11
+  y = y + h/2 - 9;                 // character height is 18 / 2
   
   ILI9341_WriteString(x, y, str, Font_11x18, strColor, setcolor);
 //  sprintf(buffTFT,"sizeof=%d",strlen(str));
 //  ILI9341_WriteString(5, ILI9341_HEIGHT-(45+18+5+(18+5)*b), buffTFT, Font_11x18, ILI9341_WHITE, ILI9341_BLACK); 
 }
 
-// �������� ��������� ������������ ���������� � ������� ������.
+// checks if the recalculated coordinate falls within the button area
 uint8_t contains(uint16_t touch_X, uint16_t touch_Y, uint8_t b){
  uint16_t beg, end;
    beg = buttons[b].x;
@@ -132,7 +132,7 @@ uint8_t contains(uint16_t touch_X, uint16_t touch_Y, uint8_t b){
 
 void checkButtons(uint8_t item){
     switch (displ_num){
-      case 0://--------- ����������� ���� �������� ----------------------
+      case 0://--------- temperatures of all sensors ----------------------
         switch (item){
           case 0: displ_num = 1; newButt = 1; break;
           case 1: displ_num = 4; newButt = 1; break;
@@ -140,14 +140,14 @@ void checkButtons(uint8_t item){
         }
         item = 10;
         break;
-      case 1://--------- ���������� � ����� SD ----------------------------------
+      case 1://--------- SD file information ----------------------------------
         switch (item){
           case 0: displ_num = 0; newButt = 1; break;
           case 1: displ_num = 0; newButt = 1; break;
         }
         item = 10;
         break;
-      case 2://--------- ��������� ----------------------------------
+      case 2://--------- Settings ----------------------------------
         switch (item){
           case 0: displ_num = 0; newButt = 1; break;
           case 1: if (--numSet<0) numSet = 0;	break;
@@ -156,22 +156,22 @@ void checkButtons(uint8_t item){
         }
         item = 10;
         break;
-      case 3://--------- �������� ��������� -------------------------
+      case 3://--------- Settings correction -------------------------
         switch (item){
           case 0: displ_num = 2; newButt = 1; break;
           case 1: ++newval[numSet];	break;
           case 2: --newval[numSet];	break;
           case 3: 
             ILI9341_FillRectangle(0, Y_top, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
-            ILI9341_WriteString(45, Y_top+40, "��������  ������!", Font_11x18, ILI9341_GREEN, ILI9341_BLACK);
+            ILI9341_WriteString(55, Y_top+60, (char*)STR_SAVE_DATA, Font_11x18, ILI9341_GREEN, ILI9341_BLACK);
             set[numSet] = newval[numSet];
-            writeSetToBackup(RTC_BKP_DR2);                    // ������� ����� �������� ���������
+            writeSetToBackup(RTC_BKP_DR2);                    // write new settings values
             HAL_Delay(1000);
             displ_num = 2; newButt = 1; break;
         }
         item = 10;
         break;
-      case 4://--------- ���� � ����� ----------------------------------
+      case 4://--------- Date and Time ----------------------------------
         switch (item){
           case 0: displ_num = 0; newButt = 1; break;
           case 1: if (--numDate<0) numDate = 0;	break;
@@ -189,14 +189,14 @@ void checkButtons(uint8_t item){
         }
         item = 10;
         break;
-      case 5://--------- �������� ���� � ����� -------------------------
+      case 5://--------- Date and Time correction -------------------------
         switch (item){
           case 0: displ_num = 4; newButt = 1; break;
           case 1: if (++newDate>59) newDate = 0;	break;
           case 2: if (--newDate<0) newDate = 59;	break;
           case 3: 
             ILI9341_FillRectangle(0, Y_top, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
-            ILI9341_WriteString(45, Y_top+40, "��������  ������!", Font_11x18, ILI9341_GREEN, ILI9341_BLACK);
+            ILI9341_WriteString(55, Y_top+60, (char*)STR_SAVE_DATA, Font_11x18, ILI9341_GREEN, ILI9341_BLACK);
             switch (numDate){
               case 0: sDate.Year = newDate; break;
               case 1: if(newDate>12) newDate = 12; sDate.Month = newDate; break;
@@ -208,13 +208,13 @@ void checkButtons(uint8_t item){
             if (numDate<3){
               Fix_Date(&sDate);
               if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK){
-                ILI9341_WriteString(45, Y_top+63, "������  ������!", Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
+                ILI9341_WriteString(45, Y_top+63, (char*)STR_WRT_ERROR, Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
               }
               writeDateToBackup(RTC_BKP_DR1);
             }
             else {
               if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK){
-                ILI9341_WriteString(45, Y_top+63, "������  ������!", Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
+                ILI9341_WriteString(45, Y_top+63, (char*)STR_WRT_ERROR, Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
               }
             }
             HAL_Delay(1000);

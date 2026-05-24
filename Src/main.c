@@ -34,7 +34,7 @@ STM32F103C8Tx LQFP48	Flash:64 kBytes	RAM:20 kBytes
 #include "FatFsAPI.h"
 #include "rtc.h"
 #include "my.h"
-
+#include "lang.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -66,8 +66,8 @@ RTC_DateTypeDef sDate;
 char fileName[15]={0};
 char txt[10];
 char buffTFT[LEN_BUFF];
-const char* dateName[5]={"year","month","day","hour","minute"};
-const char* setName[MAX_SET]={"Max T","Min T","Period","Mode"};
+const char* dateName[5]={D_N0, D_N1, D_N2, D_N3, D_N4};
+const char* setName[MAX_SET]={"Max T","Min T", S_N2, S_N3};
 int16_t set[MAX_SET]={250,240,10,0}, newval[MAX_SET]={0};
 volatile uint8_t displ_num=0, newButt=1, ticTimer, ticTouch, show, Y_txt=5, X_left=5, Y_top, Y_bottom=ILI9341_HEIGHT-22, buttonAmount, secTick, card=0;
 uint8_t familycode[MAX_DEVICE][8]={0};
@@ -160,21 +160,21 @@ int main(void)
   HAL_RTC_WaitForSynchro(&hrtc);                      // This function must be called after power-on, wake-up, or reset  
   if (HAL_RTCEx_BKUPRead(&hrtc,RTC_BKP_DR1) == 0){    // Check if the date has already been saved or not
    // if not, set an initial date and time
-   setDataAndTime(0x22,RTC_MONTH_SEPTEMBER,0x01,RTC_WEEKDAY_THURSDAY,0x00,0x00,0x00,RTC_FORMAT_BCD);//2022,MONTH_SEPTEMBER,01  WEEKDAY_THURSDAY  00:00:00
-   writeDateToBackup(RTC_BKP_DR1);       // and write the date to the backup registers
-   writeSetToBackup(RTC_BKP_DR2);        // write default settings values
+   setDataAndTime(0x22,RTC_MONTH_JANUARY,0x01,RTC_WEEKDAY_THURSDAY,0x00,0x00,0x00,RTC_FORMAT_BCD);//2026,JANUARY,01  WEEKDAY_THURSDAY  00:00:00
+   writeDateToBackup(RTC_BKP_DR1);                    // and write the date to the backup registers
+   writeSetToBackup(RTC_BKP_DR2);                     // write default settings values
   }
   else {
-    readSetToBackup(RTC_BKP_DR2);         // read settings values stored in memory
-    readBackupToDate(RTC_BKP_DR1);        // perform date correction
-    writeDateToBackup(RTC_BKP_DR1);       // save the updated date
+    readSetToBackup(RTC_BKP_DR2);                     // read settings values stored in memory
+    readBackupToDate(RTC_BKP_DR1);                    // perform date correction
+    writeDateToBackup(RTC_BKP_DR1);                   // save the updated date
   }
   //*******************************************************************************************************************************************************************************
 
   HAL_RTCEx_SetSecond_IT(&hrtc);
-  
-  sprintf(buffTFT,"Sensors amount: %d pcs.",ds18b20_amount);
-  ILI9341_WriteString(5, Y_txt, buffTFT, Font_11x18, ILI9341_CYAN, ILI9341_BLACK);
+  ILI9341_WriteString(5, Y_txt, (char*)STR_QUANTITY, Font_11x18, ILI9341_CYAN, ILI9341_BLACK);
+  sprintf(buffTFT," %d",ds18b20_amount);
+  ILI9341_WriteString(5+11*19, Y_txt, buffTFT, Font_11x18, ILI9341_CYAN, ILI9341_BLACK);
   Y_txt = Y_txt+18+5;
   
   HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
@@ -216,7 +216,7 @@ int main(void)
   while (1){
     //----- Touchscreen processing (always fast) ---------------------------
     if (ILI9341_TouchPressed() && checkButt > 40){
-      ticTouch = 5;
+      ticTouch = 1;
       if(ILI9341_TouchGetCoordinates(&touch_x, &touch_y)){
         for (item=0; item<buttonAmount; item++){
           if(contains(touch_x, touch_y, item)) break; 
@@ -262,18 +262,22 @@ int main(void)
       }
     } else {
       // Fallback to DHT or sensor search if no DS18B20 found
-      item = readDHT();
-      if (item){
-        ILI9341_WriteString(45, 5, "DHT-21 Connected!", Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
-        sprintf(buffTFT, "t=%.1f  RH=%.1f  ", (float)pvT/10, (float)pvRH/10);
-        ILI9341_WriteString(15, Y_txt+18+15, buffTFT, Font_16x26, ILI9341_WHITE, ILI9341_BLACK);
-        HAL_Delay(1000);
-      } else {
-        ILI9341_WriteString(45, 100, "Sensors not found!", Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
+//      ILI9341_WriteString(5, 200, "ds18b20_amount == 0", Font_11x18, ILI9341_WHITE, ILI9341_BLACK);
+//      item = readDHT();
+//      ILI9341_WriteString(5, 200, "readDHT()          ", Font_11x18, ILI9341_WHITE, ILI9341_BLACK);
+//      if (item){
+//        ILI9341_WriteString(45, 5, (char*)STR_DHT_OK, Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
+//        sprintf(buffTFT, "t=%.1f  RH=%.1f  ", (float)pvT/10, (float)pvRH/10);
+//        ILI9341_WriteString(15, Y_txt+18+15, buffTFT, Font_16x26, ILI9341_WHITE, ILI9341_BLACK);
+//        HAL_Delay(1000);
+//      } else {
+        ILI9341_WriteString(45, 100, (char*)STR_NOT_FOUND, Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
+//        ds18b20_port_init();
         item = ds18b20_count(MAX_DEVICE);
-        HAL_Delay(5000);
+        if(ds18b20_amount > 0) newButt = 1;
+        else HAL_Delay(5000);
         ILI9341_FillScreen(fillScreen);
-      }
+//      }
     }
     /* USER CODE END WHILE */
 

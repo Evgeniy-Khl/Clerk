@@ -1,7 +1,6 @@
 #ifndef DS18B20_H_
 #define DS18B20_H_
 
-#include "stm32f1xx_hal.h"
 #include <string.h>
 #include <stdio.h>
 #include "tft_proc.h"
