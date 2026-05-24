@@ -1,6 +1,5 @@
 /* vim: set ai et ts=4 sw=4: */
 
-//#include "stm32f1xx_hal.h"
 #include "ili9341_touch.h"
 #include "ili9341.h"
 #include "my.h"
@@ -60,16 +59,16 @@ bool ILI9341_TouchGetCoordinates(uint16_t* x, uint16_t* y) {
 
         nsamples++;
 
-        HAL_SPI_Transmit(&ILI9341_TOUCH_SPI_PORT, (uint8_t*)cmd_read_y, sizeof(cmd_read_y), HAL_MAX_DELAY);   // посылаем команду READ_Н 0x90
+        HAL_SPI_Transmit(&ILI9341_TOUCH_SPI_PORT, (uint8_t*)cmd_read_y, sizeof(cmd_read_y), HAL_MAX_DELAY);   // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ READ_пїЅ 0x90
         uint8_t y_raw[2];
-        HAL_SPI_TransmitReceive(&ILI9341_TOUCH_SPI_PORT, (uint8_t*)zeroes_tx, y_raw, sizeof(y_raw), HAL_MAX_DELAY);// посылаем нули принимаем y_raw
+        HAL_SPI_TransmitReceive(&ILI9341_TOUCH_SPI_PORT, (uint8_t*)zeroes_tx, y_raw, sizeof(y_raw), HAL_MAX_DELAY);// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ y_raw
 
-        HAL_SPI_Transmit(&ILI9341_TOUCH_SPI_PORT, (uint8_t*)cmd_read_x, sizeof(cmd_read_x), HAL_MAX_DELAY);   // посылаем команду READ_X 0xD0
+        HAL_SPI_Transmit(&ILI9341_TOUCH_SPI_PORT, (uint8_t*)cmd_read_x, sizeof(cmd_read_x), HAL_MAX_DELAY);   // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ READ_X 0xD0
         uint8_t x_raw[2];
-        HAL_SPI_TransmitReceive(&ILI9341_TOUCH_SPI_PORT, (uint8_t*)zeroes_tx, x_raw, sizeof(x_raw), HAL_MAX_DELAY);// посылаем нули принимаем x_raw
+        HAL_SPI_TransmitReceive(&ILI9341_TOUCH_SPI_PORT, (uint8_t*)zeroes_tx, x_raw, sizeof(x_raw), HAL_MAX_DELAY);// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ x_raw
 
-        avg_y += (((uint16_t)x_raw[0]) << 8) | ((uint16_t)x_raw[1]);  // экран повернут на 90 грд.
-        avg_x += (((uint16_t)y_raw[0]) << 8) | ((uint16_t)y_raw[1]);  // экран повернут на 90 грд.
+        avg_y += (((uint16_t)x_raw[0]) << 8) | ((uint16_t)x_raw[1]);  // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ 90 пїЅпїЅпїЅ.
+        avg_x += (((uint16_t)y_raw[0]) << 8) | ((uint16_t)y_raw[1]);  // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ 90 пїЅпїЅпїЅ.
     }
 
     ILI9341_TouchUnselect();

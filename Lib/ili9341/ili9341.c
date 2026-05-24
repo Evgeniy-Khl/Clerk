@@ -1,6 +1,5 @@
-/* vim: set ai et ts=4 sw=4: */
-//#include "stm32f1xx_hal.h"
 #include "ili9341.h"
+#include <stdio.h>
 
 static void ILI9341_Select(){
     HAL_GPIO_WritePin(ILI9341_CS_GPIO_Port, ILI9341_CS_Pin, GPIO_PIN_RESET);
@@ -203,8 +202,8 @@ static void ILI9341_WriteChar(uint16_t x, uint16_t y, char ch, FontDef font, uin
     ILI9341_SetAddressWindow(x, y, x+font.width-1, y+font.height-1);
 
     for(i = 0; i < font.height; i++) {
-      if (ch>=32 && ch<127) b = font.data[(ch - 32) * font.height + i];// латиница
-      else b = font.data[(ch - 97) * font.height + i];  // кирилица 192 - 96 = 96
+      if (ch>=32 && ch<127) b = font.data[(ch - 32) * font.height + i];// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+      else b = font.data[(ch - 97) * font.height + i];  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 192 - 96 = 96
         for(j = 0; j < font.width; j++) {
             if((b << j) & 0x8000)  {
                 uint8_t data[] = { color >> 8, color & 0xFF };

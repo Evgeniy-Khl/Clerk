@@ -1,7 +1,8 @@
-#include "my.h"
-#include "rtc.h"
 #include "tft_proc.h"
 #include "ili9341_touch.h"
+#include "rtc.h"
+#include "my.h"
+#include <stdio.h>
 
 extern int16_t set[MAX_SET], newval[MAX_SET];
 extern uint8_t displ_num, newButt, ticTimer, ticTouch, show, Y_txt, X_left, Y_top, Y_bottom, buttonAmount, secTick, card;
@@ -19,13 +20,13 @@ void TFT_init(){
   ILI9341_Init();
   ILI9341_FillScreen(fillScreen);
   Y_txt = 5; X_left = 5;
-  ILI9341_WriteString(45, Y_txt, "Клерк v 0.1", Font_11x18, ILI9341_YELLOW, fillScreen);
+  ILI9341_WriteString(45, Y_txt, "пїЅпїЅпїЅпїЅпїЅ v 0.1", Font_11x18, ILI9341_YELLOW, fillScreen);
   Y_txt = Y_txt+18+5;
-//  ILI9341_WriteString(25, Y_txt, "прибор корректировки", Font_11x18, ILI9341_GREEN, fillScreen);
+//  ILI9341_WriteString(25, Y_txt, "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", Font_11x18, ILI9341_GREEN, fillScreen);
 //  Y_txt = Y_txt+18+5;
-//  ILI9341_WriteString(25, Y_txt, "точности измерений", Font_11x18, ILI9341_GREEN, fillScreen);
+//  ILI9341_WriteString(25, Y_txt, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", Font_11x18, ILI9341_GREEN, fillScreen);
 //  Y_txt = Y_txt+18+5;
-//  ILI9341_WriteString(25, Y_txt, "датчиков температуры.", Font_11x18, ILI9341_GREEN, fillScreen);
+//  ILI9341_WriteString(25, Y_txt, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.", Font_11x18, ILI9341_GREEN, fillScreen);
 //  HAL_Delay(5000);
 }
 
@@ -49,11 +50,11 @@ void WindowDraw(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t setcolo
   ILI9341_WriteString(x+(w-11)/2, y+(h-18)/2, str, Font_11x18, strColor, setcolor);
 }
 
-void initializeButtons(uint8_t col, uint8_t row, uint8_t h)// высота кнопки
+void initializeButtons(uint8_t col, uint8_t row, uint8_t h)// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 {
   uint8_t i,j,indx;
   uint16_t x, y, w;
-  switch (col)                  // ширина кнопки зависит от кол-ва кнопок в строке
+  switch (col)                  // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅ-пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
    {
     case 4: w = 72; break;
     case 3: w = 100; break;
@@ -61,32 +62,32 @@ void initializeButtons(uint8_t col, uint8_t row, uint8_t h)// высота кнопки
     default: w = ILI9341_WIDTH-6;
    };
   if(h<20) h=20;
-  y = ILI9341_HEIGHT - h - 4;      // верхний контур кнопки
+  y = ILI9341_HEIGHT - h - 4;      // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
   indx = 0;
   for (j=0; j<row; j++)
    {
-    x = 4;// начало 1 кнопки
+    x = 4;// пїЅпїЅпїЅпїЅпїЅпїЅ 1 пїЅпїЅпїЅпїЅпїЅпїЅ
     for (i=0; i<col; i++)
       {
-        buttons[indx].x = x+i*(w+8);// интервал между кнопками по горизонтали
+        buttons[indx].x = x+i*(w+8);// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         buttons[indx].w = w;
         buttons[indx].h = h;
         buttons[indx].y = y;
         indx++;
       }
-    y -= (h*(row-1)+4);// интервал между кнопками по вертикали
+    y -= (h*(row-1)+4);// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
    }
-  Y_bottom = y;// нижняя граница до которой можно закрашивать экран
-  buttonAmount = col * row;// обшее количество кнопок
+  Y_bottom = y;// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+  buttonAmount = col * row;// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 }
-//-------------------- цвет фона --- цвет рамки -- цвет текста --- номер --- текст ---------
+//-------------------- пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ --- пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ -- пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ --- пїЅпїЅпїЅпїЅпїЅ --- пїЅпїЅпїЅпїЅпїЅ ---------
 void drawButton(uint16_t setcolor, uint8_t b, char *str)
 {
   uint16_t x, y, w, h;
-  w = buttons[b].w;      // ширина кнопки
-  h = buttons[b].h;      // высота кнопки
-  x = buttons[b].x;      // начало контура кнопки
-  y = buttons[b].y;      // начало контура кнопки
+  w = buttons[b].w;      // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+  h = buttons[b].h;      // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+  x = buttons[b].x;      // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+  y = buttons[b].y;      // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 
   ILI9341_FillRectangle(x, y, w, h, setcolor);
 
@@ -108,15 +109,15 @@ void drawButton(uint16_t setcolor, uint8_t b, char *str)
      ILI9341_DrawPixel(x+w+1, i, bordColor);
   }
 
-  x = x + w/2 - strlen(str)*11/2;  // ширина символа 11
-  y = y + h/2 - 9;                 // высота символа 18 / 2
+  x = x + w/2 - strlen(str)*11/2;  // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ 11
+  y = y + h/2 - 9;                 // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ 18 / 2
   
   ILI9341_WriteString(x, y, str, Font_11x18, strColor, setcolor);
 //  sprintf(buffTFT,"sizeof=%d",strlen(str));
 //  ILI9341_WriteString(5, ILI9341_HEIGHT-(45+18+5+(18+5)*b), buffTFT, Font_11x18, ILI9341_WHITE, ILI9341_BLACK); 
 }
 
-// проверка попадания пересчитаной координаты в область кнопки.
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.
 uint8_t contains(uint16_t touch_X, uint16_t touch_Y, uint8_t b){
  uint16_t beg, end;
    beg = buttons[b].x;
@@ -131,7 +132,7 @@ uint8_t contains(uint16_t touch_X, uint16_t touch_Y, uint8_t b){
 
 void checkButtons(uint8_t item){
     switch (displ_num){
-      case 0://--------- температуры всех датчиков ----------------------
+      case 0://--------- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ----------------------
         switch (item){
           case 0: displ_num = 1; newButt = 1; break;
           case 1: displ_num = 4; newButt = 1; break;
@@ -139,14 +140,14 @@ void checkButtons(uint8_t item){
         }
         item = 10;
         break;
-      case 1://--------- информация о файле SD ----------------------------------
+      case 1://--------- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ SD ----------------------------------
         switch (item){
           case 0: displ_num = 0; newButt = 1; break;
           case 1: displ_num = 0; newButt = 1; break;
         }
         item = 10;
         break;
-      case 2://--------- Установки ----------------------------------
+      case 2://--------- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ----------------------------------
         switch (item){
           case 0: displ_num = 0; newButt = 1; break;
           case 1: if (--numSet<0) numSet = 0;	break;
@@ -155,22 +156,22 @@ void checkButtons(uint8_t item){
         }
         item = 10;
         break;
-      case 3://--------- корекция Установки -------------------------
+      case 3://--------- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ -------------------------
         switch (item){
           case 0: displ_num = 2; newButt = 1; break;
           case 1: ++newval[numSet];	break;
           case 2: --newval[numSet];	break;
           case 3: 
             ILI9341_FillRectangle(0, Y_top, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
-            ILI9341_WriteString(45, Y_top+40, "ВЫПОЛНЯЮ  ЗАПИСЬ!", Font_11x18, ILI9341_GREEN, ILI9341_BLACK);
+            ILI9341_WriteString(45, Y_top+40, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ  пїЅпїЅпїЅпїЅпїЅпїЅ!", Font_11x18, ILI9341_GREEN, ILI9341_BLACK);
             set[numSet] = newval[numSet];
-            writeSetToBackup(RTC_BKP_DR2);                    // запишем новые значения установок
+            writeSetToBackup(RTC_BKP_DR2);                    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             HAL_Delay(1000);
             displ_num = 2; newButt = 1; break;
         }
         item = 10;
         break;
-      case 4://--------- Дата и Время ----------------------------------
+      case 4://--------- пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ ----------------------------------
         switch (item){
           case 0: displ_num = 0; newButt = 1; break;
           case 1: if (--numDate<0) numDate = 0;	break;
@@ -188,14 +189,14 @@ void checkButtons(uint8_t item){
         }
         item = 10;
         break;
-      case 5://--------- корекция Дата и Время -------------------------
+      case 5://--------- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ -------------------------
         switch (item){
           case 0: displ_num = 4; newButt = 1; break;
           case 1: if (++newDate>59) newDate = 0;	break;
           case 2: if (--newDate<0) newDate = 59;	break;
           case 3: 
             ILI9341_FillRectangle(0, Y_top, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
-            ILI9341_WriteString(45, Y_top+40, "ВЫПОЛНЯЮ  ЗАПИСЬ!", Font_11x18, ILI9341_GREEN, ILI9341_BLACK);
+            ILI9341_WriteString(45, Y_top+40, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ  пїЅпїЅпїЅпїЅпїЅпїЅ!", Font_11x18, ILI9341_GREEN, ILI9341_BLACK);
             switch (numDate){
               case 0: sDate.Year = newDate; break;
               case 1: if(newDate>12) newDate = 12; sDate.Month = newDate; break;
@@ -207,13 +208,13 @@ void checkButtons(uint8_t item){
             if (numDate<3){
               Fix_Date(&sDate);
               if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK){
-                ILI9341_WriteString(45, Y_top+63, "ОШИБКА  ЗАПИСИ!", Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
+                ILI9341_WriteString(45, Y_top+63, "пїЅпїЅпїЅпїЅпїЅпїЅ  пїЅпїЅпїЅпїЅпїЅпїЅ!", Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
               }
               writeDateToBackup(RTC_BKP_DR1);
             }
             else {
               if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK){
-                ILI9341_WriteString(45, Y_top+63, "ОШИБКА  ЗАПИСИ!", Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
+                ILI9341_WriteString(45, Y_top+63, "пїЅпїЅпїЅпїЅпїЅпїЅ  пїЅпїЅпїЅпїЅпїЅпїЅ!", Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
               }
             }
             HAL_Delay(1000);
