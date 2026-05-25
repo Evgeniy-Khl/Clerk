@@ -47,12 +47,13 @@ uint8_t My_LinkDriver(void){
   if (fr == FR_OK) {
     // If file was just created (size is 0), write header
     if (f_size(&MyFile) == 0) {
-      sprintf(buffTFT, "timeStamp;");
+      buffTFT[0] = 0;
+      strcat(buffTFT, "DateTime");
       for(uint8_t i=0; i<ds18b20_amount; i++){
-        sprintf(txt, "t%u;", i+1); strcat(buffTFT, txt);
+        sprintf(txt, ";t%u", i+1); strcat(buffTFT, txt);
       }
       for(uint8_t i=0; i<MAX_SET; i++){
-        sprintf(txt, "set%u;", i+1); strcat(buffTFT, txt);
+        sprintf(txt, ";set%u", i+1); strcat(buffTFT, txt);
       }
       strcat(buffTFT, "\r\n");
       
@@ -79,14 +80,15 @@ DRESULT SD_write (const char* flname){
   uint8_t i;
   if (!card) return RES_NOTRDY;
 
-  sprintf(buffTFT, "%u;", UnixTime);
+  // Human readable date: 2026-05-25 12:00:00
+  sprintf(buffTFT, "20%02u-%02u-%02u %02u:%02u:%02u", sDate.Year, sDate.Month, sDate.Date, sTime.Hours, sTime.Minutes, sTime.Seconds);
   for(i=0; i<ds18b20_amount; i++) {
-    sprintf(txt, "%.1f;", (float)ds18b20_val[i]/10);
+    sprintf(txt, ";%.1f", (float)ds18b20_val[i]/10);
     strcat(buffTFT, txt);
   }
   for(i=0; i<MAX_SET; i++) {
-    if (i<2) sprintf(txt, "%.1f;", (float)set[i]/10);
-    else sprintf(txt, "%i;", set[i]);
+    if (i<2) sprintf(txt, ";%.1f", (float)set[i]/10);
+    else sprintf(txt, ";%i", set[i]);
     strcat(buffTFT, txt);
   }
   strcat(buffTFT, "\r\n");

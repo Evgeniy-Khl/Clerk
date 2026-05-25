@@ -183,7 +183,7 @@ int main(void)
   ILI9341_WriteString(X_left+20, Y_txt, buffTFT, Font_11x18, ILI9341_YELLOW, fillScreen);
   Y_txt = Y_txt+18+5;
   //------ generating file name ---------------------------------------
-  sprintf(fileName,"%02u_%02u_%02u.txt",sDate.Year,sDate.Month,sDate.Date);
+  sprintf(fileName,"%02u_%02u_%02u.csv",sDate.Year,sDate.Month,sDate.Date);
 //  ILI9341_WriteString(X_left, Y_txt, fileName, Font_11x18, ILI9341_WHITE, fillScreen);
 //  Y_txt = Y_txt+18+5;
   //------- conversion to UnixTime --------------------------------------------
@@ -240,7 +240,7 @@ int main(void)
         last_date = sDate.Date;
         writeDateToBackup(RTC_BKP_DR1);
         SD_close(); // Close old file
-        sprintf(fileName, "%02u_%02u_%02u.txt", sDate.Year, sDate.Month, sDate.Date);
+        sprintf(fileName, "%02u_%02u_%02u.csv", sDate.Year, sDate.Month, sDate.Date);
         card = My_LinkDriver(); // Open new file
       }
 
