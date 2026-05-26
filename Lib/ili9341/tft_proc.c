@@ -159,8 +159,14 @@ void checkButtons(uint8_t item){
       case 3://--------- Settings correction -------------------------
         switch (item){
           case 0: displ_num = 2; newButt = 1; break;
-          case 1: ++newval[numSet];	break;
-          case 2: --newval[numSet];	break;
+          case 1: 
+            ++newval[numSet];
+            if (numSet == 4 && newval[numSet] > 120) newval[numSet] = 120;
+            break;
+          case 2: 
+            --newval[numSet];
+            if (numSet == 4 && newval[numSet] < 1) newval[numSet] = 1;
+            break;
           case 3: 
             ILI9341_FillRectangle(0, Y_top, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
             ILI9341_WriteString(55, Y_top+60, (char*)STR_SAVE_DATA, Font_11x18, ILI9341_GREEN, ILI9341_BLACK);
