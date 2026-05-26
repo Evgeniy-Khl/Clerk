@@ -67,8 +67,8 @@ char fileName[15]={0};
 char txt[10];
 char buffTFT[LEN_BUFF];
 const char* dateName[5]={D_N0, D_N1, D_N2, D_N3, D_N4};
-const char* setName[MAX_SET]={"Max T","Min T", S_N2, S_N3};
-int16_t set[MAX_SET]={250,240,10,0}, newval[MAX_SET]={0};
+const char* setName[MAX_SET]={"Max T","Min T", S_N2, S_N3, "Log Mon"}; // "Max T","Min T","Period","Mode","Log Months"
+int16_t set[MAX_SET]={250,240,10,0,2}, newval[MAX_SET]={0};
 volatile uint8_t displ_num=0, newButt=1, ticTimer, ticTouch, show, Y_txt=5, X_left=5, Y_top, Y_bottom=ILI9341_HEIGHT-22, buttonAmount, secTick, card=0;
 uint8_t familycode[MAX_DEVICE][8]={0};
 int8_t ds18b20_amount, numSet=0, numDate=0, newDate=0;
@@ -242,6 +242,7 @@ int main(void)
         SD_close(); // Close old file
         sprintf(fileName, "%02u_%02u_%02u.csv", sDate.Year, sDate.Month, sDate.Date);
         card = My_LinkDriver(); // Open new file
+        if (card) SD_CleanUp();
       }
 
       temperature_check();

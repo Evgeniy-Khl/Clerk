@@ -11,7 +11,7 @@ extern char USERPath[]; /* logical drive path */
 extern char fileName[];
 extern char txt[];
 FATFS SDFatFs;
-FRESULT res; 
+FRESULT res;
 DWORD fre_clust, fre_sect, tot_sect;
 FATFS *fs;
 FIL MyFile;
@@ -43,7 +43,7 @@ uint8_t My_LinkDriver(void){
 
   // Open existing or create new file
   fr = f_open(&MyFile, fileName, FA_OPEN_ALWAYS | FA_WRITE);
-  
+
   if (fr == FR_OK) {
     // If file was just created (size is 0), write header
     if (f_size(&MyFile) == 0) {
@@ -56,25 +56,25 @@ uint8_t My_LinkDriver(void){
         sprintf(txt, ";set%u", i+1); strcat(buffTFT, txt);
       }
       strcat(buffTFT, "\r\n");
-      
+
       f_write(&MyFile, buffTFT, strlen(buffTFT), (void*)&bwrt);
       f_sync(&MyFile);
-      ILI9341_WriteString(X_left, Y_bottom - 22, (char*)STR_NEW_LOG, Font_11x18, ILI9341_GREEN, fillScreen);
+      ILI9341_WriteString(X_left, Y_bottom - 22, (char*)STR_NEW_LOG, Font_11x18, ILI9341_GREEN, fillScreen);    
     } else {
       // Seek to end for appending
       f_lseek(&MyFile, f_size(&MyFile));
-      ILI9341_WriteString(X_left, Y_bottom - 22, (char*)STR_LOG_APPEND, Font_11x18, ILI9341_GREEN, fillScreen);
+      ILI9341_WriteString(X_left, Y_bottom - 22, (char*)STR_LOG_APPEND, Font_11x18, ILI9341_GREEN, fillScreen); 
     }
     cardOk = 1;
   } else {
-    ILI9341_WriteString(X_left, Y_bottom - 22, (char*)STR_FILE_ERROR, Font_11x18, ILI9341_YELLOW, ILI9341_RED);
+    ILI9341_WriteString(X_left, Y_bottom - 22, (char*)STR_FILE_ERROR, Font_11x18, ILI9341_YELLOW, ILI9341_RED); 
     f_mount(NULL, (const TCHAR*)USERPath, 0);
   }
 
   return cardOk;
 }
 
-//-- SD_write ----------------------------------------------------------------------------------------------------  
+//-- SD_write --------------------------------------------------------------------------------------------------
 // Appends data to the already open log file and syncs it.
 DRESULT SD_write (const char* flname){
   uint8_t i;
@@ -94,7 +94,7 @@ DRESULT SD_write (const char* flname){
   strcat(buffTFT, "\r\n");
 
   res = f_write(&MyFile, buffTFT, strlen(buffTFT), (void*)&bwrt);
-  
+
   if (res == FR_OK && bwrt > 0) {
     f_sync(&MyFile); // Flush data to physical media
     if (displ_num == 0) {
@@ -102,13 +102,13 @@ DRESULT SD_write (const char* flname){
     }
     return RES_OK;
   } else {
-    ILI9341_WriteString(X_left, Y_bottom - 22, (char*)STR_WRT_ERROR, Font_11x18, ILI9341_YELLOW, ILI9341_RED);
+    ILI9341_WriteString(X_left, Y_bottom - 22, (char*)STR_WRT_ERROR, Font_11x18, ILI9341_YELLOW, ILI9341_RED);  
     card = 0; // Mark card as invalid
     return RES_ERROR;
   }
 }
 
-//-- SD_close -------------------------------------------------------------------------------------------------
+//-- SD_close ------------------------------------------------------------------------------------------------- 
 void SD_close(void) {
     if (card) {
         f_close(&MyFile);
@@ -117,13 +117,14 @@ void SD_close(void) {
     }
 }
 
-//-- read dir -------------------------------------------------------------------------------------------------  
+//-- read dir ------------------------------------------------------------------------------------------------- 
+
 DRESULT SD_dir (void){
   uint8_t item;
   sprintf(buffTFT, "File  : %s", fileName);
   ILI9341_WriteString(X_left, Y_txt, buffTFT, Font_11x18, ILI9341_WHITE, fillScreen);
   Y_txt = Y_txt + 18 + 5;
-  
+
   sprintf(buffTFT, "Size: %u bytes", f_size(&MyFile));
   ILI9341_WriteString(X_left, Y_txt, buffTFT, Font_11x18, ILI9341_WHITE, fillScreen);
   Y_txt = Y_txt + 18 + 5;
@@ -151,7 +152,7 @@ DRESULT SD_dir (void){
             }
           }
           else break;
-          
+
           if (item % 3 == 0){
             Y_txt = Y_txt + 12;
             X_left = 5;
@@ -162,4 +163,42 @@ DRESULT SD_dir (void){
       }
   }
   return RES_OK;
+}
+
+//-- SD_CleanUp -------------------------------------------------------------------------------------------------
+// Deletes files older than set[4] months.
+// Files are named YY_MM_DD.csv
+void SD_CleanUp(void) {
+    DIR dj;
+    FILINFO fno;
+    FRESULT fr;
+    int32_t file_date_val, current_date_val;
+    int32_t diff_months;
+
+    if (!card) return;
+
+    current_date_val = (int32_t)sDate.Year * 12 + sDate.Month;
+
+    fr = f_opendir(&dj, "/");
+    if (fr == FR_OK) {
+        for (;;) {
+            fr = f_readdir(&dj, &fno);
+            if (fr != FR_OK || fno.fname[0] == 0) break;
+            if (fno.fattrib & AM_DIR) continue;
+
+            // Check if file name matches YY_MM_DD.csv (length 12)
+            if (strlen(fno.fname) == 12 && fno.fname[2] == '_' && fno.fname[5] == '_' && strstr(fno.fname, ".csv")) {
+                int y, m, d;
+                if (sscanf(fno.fname, "%02u_%02u_%02u.csv", &y, &m, &d) == 3) {
+                    file_date_val = (int32_t)y * 12 + m;
+                    diff_months = current_date_val - file_date_val;
+
+                    if (diff_months >= set[4]) {
+                        f_unlink(fno.fname);
+                    }
+                }
+            }
+        }
+        f_closedir(&dj);
+    }
 }
