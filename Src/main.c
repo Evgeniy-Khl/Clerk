@@ -71,7 +71,7 @@ const char* setName[MAX_SET]={"Max T","Min T", S_N2, S_N3, "Log Mon"}; // "Max T
 int16_t set[MAX_SET]={250,240,10,0,2}, newval[MAX_SET]={0};
 volatile uint8_t displ_num=0, newButt=1, ticTimer, ticTouch, show, Y_txt=5, X_left=5, Y_top, Y_bottom=ILI9341_HEIGHT-22, buttonAmount, secTick, card=0;
 uint8_t familycode[MAX_DEVICE][8]={0};
-int8_t ds18b20_amount, numSet=0, numDate=0, newDate=0;
+uint8_t ds18b20_amount, numSet=0, numDate=0, newDate=0;
 volatile int8_t resetDispl=0;
 int16_t ds18b20_val[MAX_DEVICE]={199}, max_t, min_t, midl_t, val_t, pvT, pvRH;
 uint16_t touch_x, touch_y;

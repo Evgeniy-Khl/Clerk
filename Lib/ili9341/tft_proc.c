@@ -6,7 +6,7 @@
 
 extern int16_t set[MAX_SET], newval[MAX_SET];
 extern uint8_t displ_num, newButt, ticTimer, ticTouch, show, Y_txt, X_left, Y_top, Y_bottom, buttonAmount, secTick, card;
-extern int8_t ds18b20_amount, numSet, numDate, newDate, tiimeDispl;
+extern int8_t ds18b20_amount, numSet, numDate, newDate;
 extern uint16_t fillScreen;
 extern int16_t ds18b20_val[];
 extern struct ram_structure {int x,y; char w,h;} buttons[];
@@ -198,16 +198,32 @@ void checkButtons(uint8_t item){
       case 5://--------- Date and Time correction -------------------------
         switch (item){
           case 0: displ_num = 4; newButt = 1; break;
-          case 1: if (++newDate>59) newDate = 0;	break;
-          case 2: if (--newDate<0) newDate = 59;	break;
+          case 1: // Button "+"
+            newDate++;
+            switch (numDate){
+              case 0: if (newDate > 99) newDate = 99; break; // Year
+              case 1: if (newDate > 12) newDate = 12; break; // Month
+              case 2: if (newDate > 31) newDate = 31; break; // Day
+              case 3: if (newDate > 23) newDate = 23; break; // Hour
+              case 4: if (newDate > 59) newDate = 59; break; // Minute
+            }
+            break;
+          case 2: // Button "-"
+            if (newDate > 0) newDate--;
+            switch (numDate){
+              case 1: if (newDate < 1) newDate = 1; break; // Month (1-12)
+              case 2: if (newDate < 1) newDate = 1; break; // Day (1-31)
+              default: if (newDate < 0) newDate = 0;
+            }
+            break;
           case 3: 
             ILI9341_FillRectangle(0, Y_top, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
             ILI9341_WriteString(55, Y_top+60, (char*)STR_SAVE_DATA, Font_11x18, ILI9341_GREEN, ILI9341_BLACK);
             switch (numDate){
               case 0: sDate.Year = newDate; break;
-              case 1: if(newDate>12) newDate = 12; sDate.Month = newDate; break;
-              case 2: if(newDate>31) newDate = 31; sDate.Date  = newDate; break;
-              case 3: if(newDate>23) newDate = 23; sTime.Hours = newDate; break;
+              case 1: sDate.Month = newDate; break;
+              case 2: sDate.Date  = newDate; break;
+              case 3: sTime.Hours = newDate; break;
               case 4: sTime.Minutes = newDate; break;
             }
             if (numDate==4) sTime.Seconds = 0;

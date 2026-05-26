@@ -26,6 +26,7 @@ extern uint16_t fillScreen;
 extern int16_t ds18b20_val[], set[], touch_x;
 extern uint32_t UnixTime;
 extern RTC_DateTypeDef sDate;
+extern RTC_TimeTypeDef sTime;
 uint32_t bwrt;
 
 //-- My_LinkDriver --------------------------------------------------------------
