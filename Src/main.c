@@ -67,7 +67,7 @@ char fileName[15]={0};
 char txt[10];
 char buffTFT[LEN_BUFF];
 const char* dateName[5]={D_N0, D_N1, D_N2, D_N3, D_N4};
-const char* setName[MAX_SET]={"Max T","Min T", S_N2, S_N3, "Log Mon"}; // "Max T","Min T","Period","Mode","Log Months"
+const char* setName[MAX_SET]={"Max T","Min T", S_N2, S_N3, S_N4}; // "Max T","Min T","Period","Mode","Storage"
 int16_t set[MAX_SET]={250,240,10,0,2}, newval[MAX_SET]={0};
 volatile uint8_t displ_num=0, newButt=1, ticTimer, ticTouch, show, Y_txt=5, X_left=5, Y_top, Y_bottom=ILI9341_HEIGHT-22, buttonAmount, secTick, card=0;
 uint8_t familycode[MAX_DEVICE][8]={0};
@@ -77,7 +77,6 @@ int16_t ds18b20_val[MAX_DEVICE]={199}, max_t, min_t, midl_t, val_t, pvT, pvRH;
 uint16_t touch_x, touch_y;
 uint16_t fillScreen = ILI9341_BLACK;
 volatile uint32_t checkButt;
-uint32_t UnixTime;
 struct ram_structure {int x,y; char w,h;} buttons[4];
 
 extern FATFS SDFatFs;
@@ -184,13 +183,6 @@ int main(void)
   Y_txt = Y_txt+18+5;
   //------ generating file name ---------------------------------------
   sprintf(fileName,"%02u_%02u_%02u.csv",sDate.Year,sDate.Month,sDate.Date);
-//  ILI9341_WriteString(X_left, Y_txt, fileName, Font_11x18, ILI9341_WHITE, fillScreen);
-//  Y_txt = Y_txt+18+5;
-  //------- conversion to UnixTime --------------------------------------------
-  UnixTime = colodarToCounter();
-//  sprintf(buffTFT,"UnixTime: %u", UnixTime);
-//  ILI9341_WriteString(X_left+20, Y_txt, buffTFT, Font_11x18, ILI9341_YELLOW, fillScreen);
-//  Y_txt = Y_txt+18+5;
   //------- Settings ----------------------------------------------------
   for (item = 0; item < MAX_SET; item++){
     if (item<2) sprintf(buffTFT,"%10s: %5.1f", setName[item], (float)set[item]/10);

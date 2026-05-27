@@ -80,31 +80,6 @@ void readSetToBackup(uint32_t bkp_reg){
   }
 }
 
-uint32_t colodarToCounter (void)
-{
-	uint8_t a;
-	int16_t y;
-	uint8_t m;
-	uint32_t time;
-
-	a=((14-sDate.Month)/12);// 14-1=13/12=1
-	y=sDate.Year+6800-a;    // 1970+4800-1=6769
-	m=sDate.Month+(12*a)-3; // 1+12-3=10
-  // Вычисляем значение текущего Юлианского дня
-  time=sDate.Date;
-  time+=(153*m+2)/5;
-  time+=365*y;
-  time+=y/4;
-  time-=y/100;
-  time+=y/400;
-  time-=32045;
-  time-=2440588;
-  time*=86400;     // переводим дни в секунды
-	time+=sTime.Seconds;
-  time+=sTime.Minutes*60;
-  time+=sTime.Hours*3600;
-	return time;
-}
 //-- Проверка на правильность введеной даты -------------
 void Fix_Date(RTC_DateTypeDef* date){
     if(date->Date == 0) {

@@ -13,7 +13,6 @@ extern const char* dateName[];
 extern uint8_t displ_num, ds18b20_amount, ds18b20_num, familycode[][8], newButt, Y_txt, X_left, Y_top, Y_bottom, card, newDate, ticTimer;
 extern int16_t ds18b20_val[], fillScreen, set[], newval[];
 extern int8_t numSet, numDate;
-extern int32_t UnixTime;
 extern RTC_HandleTypeDef hrtc;
 extern RTC_TimeTypeDef sTime;
 extern RTC_DateTypeDef sDate;
@@ -96,7 +95,6 @@ void displ_0(void){
   }
   HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
   HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
-  UnixTime = colodarToCounter();
   sprintf(buffTFT,"%02u:%02u:%02u    %02u.%02u.20%02u", sTime.Hours, sTime.Minutes, sTime.Seconds, sDate.Date, sDate.Month, sDate.Year);
   ILI9341_WriteString(X_left+20, Y_txt, buffTFT, Font_11x18, ILI9341_YELLOW, fillScreen);
   Y_txt = Y_txt+18+5;
