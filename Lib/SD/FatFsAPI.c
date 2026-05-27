@@ -121,7 +121,7 @@ void SD_close(void) {
 
 DRESULT SD_dir (void){
   uint8_t item;
-  sprintf(buffTFT, "File  : %s", fileName);
+  sprintf(buffTFT, "File: %s", fileName);
   ILI9341_WriteString(X_left, Y_txt, buffTFT, Font_11x18, ILI9341_WHITE, fillScreen);
   Y_txt = Y_txt + 18 + 5;
 
@@ -146,9 +146,9 @@ DRESULT SD_dir (void){
             else {
               ILI9341_WriteString(X_left, Y_txt, fileInfo.fname, Font_7x10, ILI9341_WHITE, fillScreen);
               item++;
-            }
-            if(fileInfo.fattrib & AM_DIR) {
-              ILI9341_WriteString(X_left + 80, Y_txt, "[DIR]", Font_7x10, ILI9341_MAGENTA, fillScreen);
+              if(fileInfo.fattrib & AM_DIR) {
+                ILI9341_WriteString(X_left+55, Y_txt, "[DIR]", Font_7x10, ILI9341_MAGENTA, fillScreen);
+              }
             }
           }
           else break;
