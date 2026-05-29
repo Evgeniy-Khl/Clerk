@@ -254,23 +254,12 @@ int main(void)
         }
       }
     } else {
-      // Fallback to DHT or sensor search if no DS18B20 found
-//      ILI9341_WriteString(5, 200, "ds18b20_amount == 0", Font_11x18, ILI9341_WHITE, ILI9341_BLACK);
-//      item = readDHT();
-//      ILI9341_WriteString(5, 200, "readDHT()          ", Font_11x18, ILI9341_WHITE, ILI9341_BLACK);
-//      if (item){
-//        ILI9341_WriteString(45, 5, (char*)STR_DHT_OK, Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
-//        sprintf(buffTFT, "t=%.1f  RH=%.1f  ", (float)pvT/10, (float)pvRH/10);
-//        ILI9341_WriteString(15, Y_txt+18+15, buffTFT, Font_16x26, ILI9341_WHITE, ILI9341_BLACK);
-//        HAL_Delay(1000);
-//      } else {
         ILI9341_WriteString(45, 100, (char*)STR_NOT_FOUND, Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
 //        ds18b20_port_init();
         item = ds18b20_count(MAX_DEVICE);
         if(ds18b20_amount > 0) newButt = 1;
         else HAL_Delay(5000);
         ILI9341_FillScreen(fillScreen);
-//      }
     }
     /* USER CODE END WHILE */
 
