@@ -10,9 +10,9 @@
 extern char buffTFT[];
 extern const char* setName[];
 extern const char* dateName[];
-extern uint8_t displ_num, ds18b20_amount, ds18b20_num, familycode[][8], newButt, Y_txt, X_left, Y_top, Y_bottom, card, newDate, ticTimer;
-extern int16_t ds18b20_val[], fillScreen, set[], newval[];
-extern int8_t numSet, numDate;
+extern uint8_t displ_num, ds18b20_amount, ds18b20_num, familycode[][8], newButt, Y_txt, X_left, Y_top, Y_bottom, card, ticTimer;
+extern int16_t ds18b20_val[], fillScreen, set[], newValue;
+extern int8_t numSet, numDate, newDate;
 extern RTC_HandleTypeDef hrtc;
 extern RTC_TimeTypeDef sTime;
 extern RTC_DateTypeDef sDate;
@@ -81,13 +81,13 @@ void displT_16x26(){
     ILI9341_WriteString(X_left, Y_bottom - 22, "MAX=**.*  MIN=**.*  MID=**.*", Font_11x18, ILI9341_MAGENTA, ILI9341_BLACK);
   }
 }
-//--------- температуры всех датчиков ----------------------
+//--------- С‚РµРјРїРµСЂР°С‚СѓСЂС‹ РІСЃРµС… РґР°С‚С‡РёРєРѕРІ ----------------------
 void displ_0(void){
   Y_txt = Y_top; X_left = 5; 
   if (newButt){
     newButt = 0;
     ILI9341_FillRectangle(0, Y_txt, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
-    initializeButtons(3,1,25);// 3 колонки; одна строка; высота 25
+    initializeButtons(3,1,25);// 3 РєРѕР»РѕРЅРєРё; РѕРґРЅР° СЃС‚СЂРѕРєР°; РІС‹СЃРѕС‚Р° 25
     if (card) drawButton(ILI9341_MAGENTA, 0, (char*)BUTT01);
     else drawButton(ILI9341_WHITE, 0, (char*)BUTT00);
     drawButton(ILI9341_CYAN, 1, (char*)BUTT1);
@@ -101,20 +101,20 @@ void displ_0(void){
   if (ds18b20_amount > 10) displT_11x18(); else displT_16x26();
 }
 
-//--------- информация о файле SD ----------------------------------
+//--------- РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ С„Р°Р№Р»Рµ SD ----------------------------------
 void displ_1(void){
   Y_txt = Y_top; X_left = 5;
   if (newButt){
     newButt = 0;
     ILI9341_FillRectangle(0, Y_txt, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
-    initializeButtons(2,1,25);// две колонки; одна строка; высота 25
+    initializeButtons(2,1,25);// РґРІРµ РєРѕР»РѕРЅРєРё; РѕРґРЅР° СЃС‚СЂРѕРєР°; РІС‹СЃРѕС‚Р° 25
     drawButton(ILI9341_BLUE, 0, (char*)BUTT3);
     drawButton(ILI9341_BLACK, 1, "");
   }
   SD_dir();
 }
 
-//--------- Установки ----------------------------------
+//--------- РЈСЃС‚Р°РЅРѕРІРєРё ----------------------------------
 void displ_2(void){
   uint8_t item;
   uint16_t color_txt;
@@ -123,7 +123,7 @@ void displ_2(void){
   if (newButt){
     newButt = 0;
     ILI9341_FillRectangle(0, Y_txt, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
-    initializeButtons(4,1,45);// четыре колонки; одна строка; высота 45
+    initializeButtons(4,1,45);// С‡РµС‚С‹СЂРµ РєРѕР»РѕРЅРєРё; РѕРґРЅР° СЃС‚СЂРѕРєР°; РІС‹СЃРѕС‚Р° 45
     drawButton(ILI9341_BLUE, 0, (char*)BUTT3);
     drawButton(ILI9341_GREEN, 1, "<");
     drawButton(ILI9341_GREEN, 2, ">");
@@ -139,13 +139,13 @@ void displ_2(void){
   }
 }
 
-//--------- корекция Установки ----------------------------------
+//--------- РєРѕСЂРµРєС†РёСЏ РЈСЃС‚Р°РЅРѕРІРєРё ----------------------------------
 void displ_3(void){
   Y_txt = Y_top; X_left = 5;
   if (newButt){
     newButt = 0;
     ILI9341_FillRectangle(0, Y_txt, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
-    initializeButtons(4,1,45);// четыре колонки; одна строка; высота 45
+    initializeButtons(4,1,45);// С‡РµС‚С‹СЂРµ РєРѕР»РѕРЅРєРё; РѕРґРЅР° СЃС‚СЂРѕРєР°; РІС‹СЃРѕС‚Р° 45
     drawButton(ILI9341_BLUE, 0, (char*)BUTT5);
     drawButton(ILI9341_GREEN, 1, "+");
     drawButton(ILI9341_GREEN, 2, "-");
@@ -155,12 +155,12 @@ void displ_3(void){
   sprintf(buffTFT,"%s:", setName[numSet]);
   ILI9341_WriteString(X_left+20, Y_txt, buffTFT, Font_11x18, ILI9341_WHITE, ILI9341_BLACK);
   Y_txt = Y_txt-8;
-  if (numSet<2) sprintf(buffTFT,"%5.1f", (float)newval[numSet]/10);
-  else sprintf(buffTFT,"%5i", newval[numSet]);
+  if (numSet<2) sprintf(buffTFT,"%5.1f", (float)newValue/10);
+  else sprintf(buffTFT,"%5i", newValue);
   ILI9341_WriteString(X_left+90, Y_txt, buffTFT, Font_16x26, ILI9341_WHITE, ILI9341_BLACK);
 }
 
-//--------- Дата и Время ----------------------------------
+//--------- Р”Р°С‚Р° Рё Р’СЂРµРјСЏ ----------------------------------
 void displ_4(void){
   uint16_t color_txt;
 
@@ -168,7 +168,7 @@ void displ_4(void){
   if (newButt){
     newButt = 0;
     ILI9341_FillRectangle(0, Y_txt, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
-    initializeButtons(4,1,45);// четыре колонки; одна строка; высота 45
+    initializeButtons(4,1,45);// С‡РµС‚С‹СЂРµ РєРѕР»РѕРЅРєРё; РѕРґРЅР° СЃС‚СЂРѕРєР°; РІС‹СЃРѕС‚Р° 45
     drawButton(ILI9341_BLUE, 0, (char*)BUTT3);
     drawButton(ILI9341_GREEN, 1, "<");
     drawButton(ILI9341_GREEN, 2, ">");
@@ -198,13 +198,13 @@ void displ_4(void){
   Y_txt = Y_txt+18+5;
 }
 
-//--------- корекция Дата и Время ----------------------------------
+//--------- РєРѕСЂРµРєС†РёСЏ Р”Р°С‚Р° Рё Р’СЂРµРјСЏ ----------------------------------
 void displ_5(void){
   Y_txt = Y_top; X_left = 5;
   if (newButt){
     newButt = 0;
     ILI9341_FillRectangle(0, Y_txt, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
-    initializeButtons(4,1,45);// четыре колонки; одна строка; высота 45
+    initializeButtons(4,1,45);// С‡РµС‚С‹СЂРµ РєРѕР»РѕРЅРєРё; РѕРґРЅР° СЃС‚СЂРѕРєР°; РІС‹СЃРѕС‚Р° 45
     drawButton(ILI9341_BLUE, 0, (char*)BUTT5);
     drawButton(ILI9341_GREEN, 1, "+");
     drawButton(ILI9341_GREEN, 2, "-");

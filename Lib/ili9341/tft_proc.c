@@ -4,7 +4,7 @@
 #include "tft_proc.h"
 #include "ili9341_touch.h"
 
-extern int16_t set[MAX_SET], newval[MAX_SET];
+extern int16_t set[MAX_SET], newValue;
 extern uint8_t displ_num, newButt, ticTimer, ticTouch, show, Y_txt, X_left, Y_top, Y_bottom, buttonAmount, secTick, card;
 extern int8_t ds18b20_amount, numSet, numDate, newDate;
 extern uint16_t fillScreen;
@@ -152,7 +152,7 @@ void checkButtons(uint8_t item){
           case 0: displ_num = 0; newButt = 1; break;
           case 1: if (--numSet<0) numSet = 0;	break;
           case 2: if (++numSet>4) numSet = 4;	break;
-          case 3: newval[numSet] = set[numSet]; displ_num = 3; newButt = 1; break;
+          case 3: newValue = set[numSet]; displ_num = 3; newButt = 1; break;
         }
         item = 10;
         break;
@@ -160,17 +160,35 @@ void checkButtons(uint8_t item){
         switch (item){
           case 0: displ_num = 2; newButt = 1; break;
           case 1: 
-            ++newval[numSet];
-            if (numSet == 4 && newval[numSet] > 120) newval[numSet] = 120;
+            ++newValue;
+            switch (numSet){
+              case 0: if (newValue > 1250) newValue = 1250; break; // Max T
+              case 1: 
+                if (newValue > 500)  newValue = 500; 
+                if (newValue > set[0]-10) newValue = set[0]-10;      // Min T < Max T
+                break;
+              case 2: if (newValue > 600)  newValue = 600;  break; // Period (seconds)
+              case 3: if (newValue > 1)    newValue = 1;    break; // Mode
+              case 4: if (newValue > 12)   newValue = 12;   break; // Storage (months)
+            }
             break;
           case 2: 
-            --newval[numSet];
-            if (numSet == 4 && newval[numSet] < 1) newval[numSet] = 1;
+            --newValue;
+            switch (numSet){
+              case 0: 
+                if (newValue < -100)  newValue = -100;               // Min Limit -10.0°C
+                if (newValue < set[1]+10) newValue = set[1]+10;      // Max T > Min T
+                break;
+              case 1: if (newValue < -500) newValue = -500; break; // Min T
+              case 2: if (newValue < 5)  newValue = 5; break; // Period (seconds)
+              case 3: if (newValue < 0)  newValue = 0; break; // Mode
+              case 4: if (newValue < 1)  newValue = 1; break; // Storage (months)
+            }
             break;
           case 3: 
             ILI9341_FillRectangle(0, Y_top, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
             ILI9341_WriteString(55, Y_top+60, (char*)STR_SAVE_DATA, Font_11x18, ILI9341_GREEN, ILI9341_BLACK);
-            set[numSet] = newval[numSet];
+            set[numSet] = newValue;
             writeSetToBackup(RTC_BKP_DR2);                    // write new settings values
             HAL_Delay(1000);
             displ_num = 2; newButt = 1; break;
@@ -182,7 +200,7 @@ void checkButtons(uint8_t item){
           case 0: displ_num = 0; newButt = 1; break;
           case 1: if (--numDate<0) numDate = 0;	break;
           case 2: if (++numDate>4) numDate = 4;	break;
-          case 3: /*newval[numSet] = set[numSet]; */ 
+          case 3: /*newValue = set[numSet]; */ 
             switch (numDate){
               case 0: newDate = sDate.Year; break;
               case 1: newDate = sDate.Month; break;
@@ -201,19 +219,21 @@ void checkButtons(uint8_t item){
           case 1: // Button "+"
             newDate++;
             switch (numDate){
-              case 0: if (newDate > 99) newDate = 99; break; // Year
-              case 1: if (newDate > 12) newDate = 12; break; // Month
-              case 2: if (newDate > 31) newDate = 31; break; // Day
-              case 3: if (newDate > 23) newDate = 23; break; // Hour
-              case 4: if (newDate > 59) newDate = 59; break; // Minute
+              case 0: if (newDate > 99) newDate = 0; break; // Year
+              case 1: if (newDate > 12) newDate = 1; break; // Month (1-12)
+              case 2: if (newDate > 31) newDate = 1; break; // Day (1-31)
+              case 3: if (newDate > 23) newDate = 0; break; // Hour
+              case 4: if (newDate > 59) newDate = 0; break; // Minute
             }
             break;
           case 2: // Button "-"
             if (newDate > 0) newDate--;
             switch (numDate){
-              case 1: if (newDate < 1) newDate = 1; break; // Month (1-12)
-              case 2: if (newDate < 1) newDate = 1; break; // Day (1-31)
-              default: if (newDate < 0) newDate = 0;
+              case 0: if (newDate < 0) newDate = 99; break; // Year
+              case 1: if (newDate < 1) newDate = 12; break; // Month (1-12)
+              case 2: if (newDate < 1) newDate = 31; break; // Day (1-31)
+              case 3: if (newDate < 0) newDate = 23; break; // Hour
+              case 4: if (newDate < 0) newDate = 59; break; // Minute
             }
             break;
           case 3: 

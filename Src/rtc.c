@@ -7,7 +7,8 @@ extern RTC_DateTypeDef sDate;
 
 extern int16_t set[];
 
-extern uint8_t Y_txt, X_left, Y_top, Y_bottom, card, newDate;
+extern uint8_t Y_txt, X_left, Y_top, Y_bottom, card;
+extern int8_t newDate;
 extern int16_t fillScreen;
 extern char buffTFT[];
 //----------- Функція встановлення дати і часу ----------------------------------------
