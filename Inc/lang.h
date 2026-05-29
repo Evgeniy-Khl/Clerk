@@ -8,7 +8,7 @@
 
 // ======================= УКРАЇНСЬКА =======================
 #if defined(LANG_UA)
-    #define STR_VERSION       "Програма КЛЕРК v 0.1 "
+    #define STR_VERSION       "Програма КЛЕРК v 1.0 "
     #define D_N0              "рык "
     #define D_N1              "мысяць"
     #define D_N2              "день"
@@ -27,16 +27,16 @@
     #define STR_QUANTITY      "Кылькысть датчикыв "
     #define STR_NOT_FOUND     "Датчикыв не знайдено!"
     #define STR_DHT_OK        "DHT-21 пыдключен"
-    #define STR_SAVE_DATA     " ДАННЫ ЗБЕРЫГ  "
+    #define STR_SAVE_DATA     "       ДАННЫ ЗБЕРЫГ         "
     #define STR_WRT_ERROR     "ПОМИЛКА ЗАПИСУ!"
     #define STR_NEW_LOG       "Новий лог створено"
     #define STR_LOG_APPEND    "Додавання журналу"
     #define STR_FILE_ERROR    "Помилка відкриття файлу"
-    #define STR_SD_MISSING    "SD карту не вставлено!"
+    #define STR_SD_MISSING    "   SD карту не вставлено!   "
     #define STR_SD_DETECTED   "SD карта визначена "
 // ========================= РУССКИЙ =========================
 #elif defined(LANG_RU)
-    #define STR_VERSION       "Программа КЛЕРК v 0.1"
+    #define STR_VERSION       "Программа КЛЕРК v 1.0"
     #define D_N0              "год "
     #define D_N1              "месяц"
     #define D_N2              "день"
@@ -55,16 +55,16 @@
     #define STR_QUANTITY      "Количество датчиков"
     #define STR_NOT_FOUND     "Датчиков не найдено! "
     #define STR_DHT_OK        "DHT-21 подключен"
-    #define STR_SAVE_DATA     "ДАННЫЕ СОХРАНИЛ"
+    #define STR_SAVE_DATA     "      ДАННЫЕ СОХРАНИЛ       "
     #define STR_WRT_ERROR     "ОШИБКА  ЗАПИСИ!"
     #define STR_NEW_LOG       " Создан новый лог "
     #define STR_LOG_APPEND    "Добавлена запись "
     #define STR_FILE_ERROR    " Ошибка открытия файла "
-    #define STR_SD_MISSING    "SD карта не вставлена!"
+    #define STR_SD_MISSING    "   SD карта не вставлена!   "
     #define STR_SD_DETECTED   "SD карта определена"
 // ========================= ENGLISH =========================
 #elif defined(LANG_EN)
-    #define STR_VERSION       "The CLERK program v0.1"
+    #define STR_VERSION       "The CLERK program v1.0"
     #define D_N0              "year"
     #define D_N1              "month"
     #define D_N2              "day "
@@ -83,12 +83,12 @@
     #define STR_QUANTITY      "Sensors  amount    "
     #define STR_NOT_FOUND     "  No sensors found!  "
     #define STR_DHT_OK        "DHT-21 Connected"
-    #define STR_SAVE_DATA     "  DATA SAVED   "
+    #define STR_SAVE_DATA     "         DATA SAVED         "
     #define STR_WRT_ERROR     "  WRITE ERROR! "
     #define STR_NEW_LOG       " New Log Created  "
     #define STR_LOG_APPEND    " Log Appending   "
     #define STR_FILE_ERROR    "    File Open Error    "
-    #define STR_SD_MISSING    " SD card is missing!  "
+    #define STR_SD_MISSING    "    SD card is missing!     "
     #define STR_SD_DETECTED   " SD card detected  "
 #endif
 

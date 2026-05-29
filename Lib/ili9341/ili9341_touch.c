@@ -87,7 +87,7 @@ bool ILI9341_TouchGetCoordinates(uint16_t* x, uint16_t* y) {
 //    sprintf(buffTFT,"X=%6d Y=%6d",raw_x, raw_y);
 //    ILI9341_WriteString(X_left, Y_bottom - 66, buffTFT, Font_11x18, ILI9341_WHITE, ILI9341_BLACK);    
 #if DIAGONAL==24
-    *x = (raw_x - ILI9341_TOUCH_MIN_RAW_X) * ILI9341_TOUCH_SCALE_X / (ILI9341_TOUCH_MAX_RAW_X - ILI9341_TOUCH_MIN_RAW_X);
+    *x = (raw_x - ILI9341_TOUCH_MIN_RAW_X) * ILI9341_TOUCH_SCALE_X / (ILI9341_TOUCH_MAX_RAW_X - ILI9341_TOUCH_MIN_RAW_X)-30;  //???????????????
  #if TOUCHMODE==0
     *y = (raw_y - ILI9341_TOUCH_MIN_RAW_Y) * ILI9341_TOUCH_SCALE_Y / (ILI9341_TOUCH_MAX_RAW_Y - ILI9341_TOUCH_MIN_RAW_Y);
  #else

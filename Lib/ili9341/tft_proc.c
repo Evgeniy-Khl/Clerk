@@ -187,7 +187,7 @@ void checkButtons(uint8_t item){
             break;
           case 3: 
             ILI9341_FillRectangle(0, Y_top, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
-            ILI9341_WriteString(55, Y_top+60, (char*)STR_SAVE_DATA, Font_11x18, ILI9341_GREEN, ILI9341_BLACK);
+            ILI9341_WriteString(0, Y_top+60, (char*)STR_SAVE_DATA, Font_11x18, ILI9341_GREEN, ILI9341_BLACK);
             set[numSet] = newValue;
             writeSetToBackup(RTC_BKP_DR2);                    // write new settings values
             HAL_Delay(1000);
@@ -238,7 +238,7 @@ void checkButtons(uint8_t item){
             break;
           case 3: 
             ILI9341_FillRectangle(0, Y_top, ILI9341_WIDTH, ILI9341_HEIGHT, fillScreen);
-            ILI9341_WriteString(55, Y_top+60, (char*)STR_SAVE_DATA, Font_11x18, ILI9341_GREEN, ILI9341_BLACK);
+            ILI9341_WriteString(0, Y_top+60, (char*)STR_SAVE_DATA, Font_11x18, ILI9341_GREEN, ILI9341_BLACK);
             switch (numDate){
               case 0: sDate.Year = newDate; break;
               case 1: sDate.Month = newDate; break;
