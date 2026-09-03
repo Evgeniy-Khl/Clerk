@@ -16,6 +16,7 @@ STM32F103C8Tx LQFP48	Flash:64 kBytes	RAM:20 kBytes
   *                             www.st.com/SLA0044
   *
   ******************************************************************************
+  * Програма КЛЕРК v 1.0 31.08.2026
   */
 /* USER CODE END Header */
 
@@ -101,12 +102,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   if(htim->Instance == TIM1) //check if the interrupt comes from TIM1 (10 ms)
   {
     checkButt++;
-    if (ticTouch){ --ticTouch; HAL_GPIO_WritePin(Touch_GPIO_Port, Touch_Pin, GPIO_PIN_SET);}// touch indication
-    else {HAL_GPIO_WritePin(Touch_GPIO_Port, Touch_Pin, GPIO_PIN_RESET);}
-    if (ticTimer){ --ticTimer;
-      if (set[3]&1) HAL_GPIO_WritePin(Touch_GPIO_Port, Touch_Pin, GPIO_PIN_SET);      // turn ON alarm Alarm_GPIO_Port, Alarm_Pin
+    uint8_t sound = 0;
+
+    if (ticTouch){ 
+      --ticTouch; 
+      sound = 1; // touch indication
     }
-    else if (set[3]&1) HAL_GPIO_WritePin(Touch_GPIO_Port, Touch_Pin, GPIO_PIN_RESET); // turn OFF alarm Alarm_GPIO_Port, Alarm_Pin
+    if (ticTimer){ 
+      --ticTimer;
+      if (set[3]&1) sound = 1; // alarm indication
+    }
+
+    HAL_GPIO_WritePin(Touch_GPIO_Port, Touch_Pin, sound ? GPIO_PIN_SET : GPIO_PIN_RESET);
   }
 }
 /* USER CODE END 0 */
@@ -159,7 +166,7 @@ int main(void)
   HAL_RTC_WaitForSynchro(&hrtc);                      // This function must be called after power-on, wake-up, or reset  
   if (HAL_RTCEx_BKUPRead(&hrtc,RTC_BKP_DR1) == 0){    // Check if the date has already been saved or not
    // if not, set an initial date and time
-   setDataAndTime(0x22,RTC_MONTH_JANUARY,0x01,RTC_WEEKDAY_THURSDAY,0x00,0x00,0x00,RTC_FORMAT_BCD);//2026,JANUARY,01  WEEKDAY_THURSDAY  00:00:00
+   setDataAndTime(0x26,RTC_MONTH_SEPTEMBER,0x01,RTC_WEEKDAY_THURSDAY,0x00,0x00,0x00,RTC_FORMAT_BCD);//2026,JANUARY,01  WEEKDAY_THURSDAY  00:00:00
    writeDateToBackup(RTC_BKP_DR1);                    // and write the date to the backup registers
    writeSetToBackup(RTC_BKP_DR2);                     // write default settings values
   }
